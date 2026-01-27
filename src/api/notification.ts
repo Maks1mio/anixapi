@@ -19,8 +19,20 @@ export class Notification {
         return await this.client.call<DefaultResult, INotificationCountResponse>({ path: `/notification/count`, ...options });
     }
 
-    public async getNotifications(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IFriendNotification | IRelatedReleaseNotification>> {
-        return await this.client.call<DefaultResult, IPageableResponse<IFriendNotification | IRelatedReleaseNotification>>({ path: `/notification/all/${page}`, ...options });
+    public async getNotifications(page: number, options?: IBaseApiParams): Promise<IPageableResponse<
+        IFriendNotification |
+        IRelatedReleaseNotification |
+        IArticleNotification |
+        IReleaseCommentNotification |
+        ICollectionCommentNotification
+    >> {
+        return await this.client.call<DefaultResult, IPageableResponse<
+            IFriendNotification |
+            IRelatedReleaseNotification |
+            IArticleNotification |
+            IReleaseCommentNotification |
+            ICollectionCommentNotification
+        >>({ path: `/notification/all/${page}`, ...options });
     }
 
     public async getFriendsNotifications(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IFriendNotification>> {
