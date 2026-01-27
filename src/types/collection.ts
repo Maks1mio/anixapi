@@ -1,6 +1,6 @@
 import { IProfile } from "./profile";
 import { IRelease } from "./release";
-import { IBaseComment, IResponse } from "./response";
+import { IBaseComment, IBaseCompactComment, IResponse } from "./response";
 import { IBaseRequestPageable } from "./request";
 
 export interface ICollection {
@@ -18,6 +18,16 @@ export interface ICollection {
     is_deleted: boolean;
     is_favorite: boolean;
     releases: IRelease[];
+}
+
+export interface ICollectionCompact {
+    id: number,
+    title: string,
+    image: string
+}
+
+export interface ICollectionCompactComment extends IBaseCompactComment {
+    collection: ICollectionCompact
 }
 
 export interface ICollectionResponse<T extends number = CollectionResult> extends IResponse<T> {

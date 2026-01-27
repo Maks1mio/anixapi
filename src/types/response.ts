@@ -1,5 +1,5 @@
 import { IDubber, IRelease } from "./release"
-import { IProfileShort } from "./profile"
+import { IProfileCompact, IProfileShort } from "./profile"
 
 export enum DefaultResult {
     Ok = 0,
@@ -74,6 +74,13 @@ export interface IBaseComment {
     is_reply: boolean,
     reply_count: number,
     can_like: boolean
+}
+
+export interface IBaseCompactComment {
+    id: number,
+    message: string,
+    is_spoiler: boolean,
+    profile: IProfileCompact,
 }
 
 export interface IUrlResponse extends IResponse {

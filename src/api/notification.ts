@@ -7,7 +7,9 @@ import {
     IResponse,
     IBaseApiParams,
     DefaultResult,
-    IArticleNotification
+    IArticleNotification,
+    IReleaseCommentNotification,
+    ICollectionCommentNotification
 } from "../types";
 
 //TODO: Удаление конкретных уведомлений
@@ -34,12 +36,12 @@ export class Notification {
         return await this.client.call<DefaultResult, IPageableResponse<any>>({ path: `/notification/episodes/${page}`, ...options });
     }
 
-    public async getReleaseCommentNotifications(page: number, options?: IBaseApiParams): Promise<IPageableResponse<any>> {
-        return await this.client.call<DefaultResult, IPageableResponse<any>>({ path: `/notification/releaseComments/${page}`, ...options });
+    public async getReleaseCommentNotifications(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IReleaseCommentNotification>> {
+        return await this.client.call<DefaultResult, IPageableResponse<IReleaseCommentNotification>>({ path: `/notification/releaseComments/${page}`, ...options });
     }
 
-    public async getCollectionCommentNotifications(page: number, options?: IBaseApiParams): Promise<IPageableResponse<any>> {
-        return await this.client.call<DefaultResult, IPageableResponse<any>>({ path: `/notification/collectionComments/${page}`, ...options });
+    public async getCollectionCommentNotifications(page: number, options?: IBaseApiParams): Promise<IPageableResponse<ICollectionCommentNotification>> {
+        return await this.client.call<DefaultResult, IPageableResponse<ICollectionCommentNotification>>({ path: `/notification/collectionComments/${page}`, ...options });
     }
 
     public async getArticleNotifications(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IArticleNotification>> {
@@ -48,6 +50,10 @@ export class Notification {
 
     public async removeAllNotifications(options?: IBaseApiParams): Promise<IResponse> {
         return await this.client.call<DefaultResult, IResponse>({ path: `/notification/delete/all`, ...options });
+    }
+
+    public async removeNotification(type: "friend" | "episode" | "releaseComment" | "collectionComment" | "article" | "related/release", id: number, options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<DefaultResult, IResponse>({ path: `/notification/${type}/delete/${id}`, ...options });
     }
 
     public async readNotifications(options?: IBaseApiParams): Promise<IResponse> {

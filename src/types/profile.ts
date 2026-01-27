@@ -130,6 +130,12 @@ export interface IRole {
     name: string
 }
 
+export interface IProfileCompact {
+    id: number,
+    login: string,
+    avatar: string
+}
+
 export interface IProfileShort {
     id: number,
     login: string,
