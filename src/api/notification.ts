@@ -12,7 +12,6 @@ import {
     ICollectionCommentNotification
 } from "../types";
 
-//TODO: Удаление конкретных уведомлений
 export class Notification {
     public constructor(private readonly client: Anixart) { }
 
