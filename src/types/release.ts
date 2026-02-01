@@ -1,5 +1,5 @@
-import { IPageableResponse, IResponse, IBaseComment, CommentAddResult } from './response'
-import { IProfileShort, IProfile, BookmarkType } from './profile'
+import { IPageableResponse, IResponse, IBaseComment, CommentAddResult, IBaseCompactComment } from './response'
+import { IProfile, BookmarkType } from './profile'
 import { IBaseRequestPageable, IBaseSearchRequest } from './request'
 
 export enum ReleaseCategory {
@@ -74,6 +74,12 @@ export interface IReleaseFilterResponse extends IPageableResponse<IRelease> { }
 export interface IReleaseCategory {
     id: ReleaseCategory
     name: string
+}
+
+export interface ICompactRelease {
+    id: number
+    title: string
+    image: string
 }
 
 export interface IReleaseStatus {
@@ -322,6 +328,10 @@ export interface IEpisodesResponse extends IResponse {
 
 export interface IEpisodeResponse extends IResponse {
     episode: IEpisode
+}
+
+export interface IReleaseCompactComment extends IBaseCompactComment {
+    release: ICompactRelease
 }
 
 export interface IInterestingRelease {

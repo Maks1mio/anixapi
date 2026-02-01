@@ -78,9 +78,9 @@ export class KodikParser {
         const urlResponse = await (await fetch(url)).text();
 
         const urlParams = JSON.parse(urlResponse.match(/var\surlParams\s=\s'(?<params>.*?)';/is)?.groups?.params ?? "{}");
-        const videoInfoHash = urlResponse.match(/videoInfo.hash\s=\s'(?<hash>.*?)';/is)?.groups?.hash;
-        const videoInfoId = urlResponse.match(/videoInfo.id\s=\s'(?<id>.*?)';/is)?.groups?.id;
-        const videoInfoType = urlResponse.match(/videoInfo.type\s=\s'(?<type>.*?)';/)?.groups?.type;
+        const videoInfoHash = urlResponse.match(/\w+.hash\s=\s'(?<hash>.*?)';/is)?.groups?.hash;
+        const videoInfoId = urlResponse.match(/\w+.id\s=\s'(?<id>.*?)';/is)?.groups?.id;
+        const videoInfoType = urlResponse.match(/\w+.type\s=\s'(?<type>.*?)';/)?.groups?.type;
         const validKodikUrl = new RegExp(/\/\/(get|cloud)\.kodik-storage\.com\/useruploads\/.*?\/.*?\/(240|360|480|720|1080)\.mp4:hls:manifest.m3u8/s);
 
         if (!videoInfoHash || !videoInfoId || !videoInfoType) return null;
@@ -273,7 +273,7 @@ export interface AniLibriaReturnObject {
  * Класс парсера анилибрии
  */
 export class AniLibriaParser {
-    private static _baseAniLibriaDomain = 'anilibria.top'
+    private static _baseAniLibriaDomain = 'aniliberty.top'
     private static _endpointUrl = '/api/v1/anime/releases'
 
     public static idPattern = new RegExp(/id=(?<id>\d+)/g);
