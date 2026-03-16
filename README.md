@@ -186,7 +186,8 @@ if (release) {
 
 ## Проекты использующие AnixartJS
 
-- AniDesk - Неофициальный десктоп клиент Anixart [[Ссылка]](https://github.com/theDesConnet/AniDesk)
+- [AniDesk](https://github.com/theDesConnet/AniDesk) - Неофициальный десктоп клиент Anixart
+- [AnixApp](https://github.com/Maks1mio/anixapp) - Неофициальное приложение Anixart на ПК. Главной фичей является функционал совместного просмотра.
 
 ## 📜 Лицензия
 
