@@ -54,7 +54,7 @@ export interface KodikDirectLinkResponse {
 }
 
 export class KodikParser {
-    private static _baseKodikDomain = 'kodik.info'
+    private static _baseKodikDomain = 'kodikplayer.com'
     private static _endpointUrl = '/ftor';
 
     public static async getLatestLink(url: string): Promise<string | null> {
@@ -81,7 +81,7 @@ export class KodikParser {
         const videoInfoHash = urlResponse.match(/\w+.hash\s=\s'(?<hash>.*?)';/is)?.groups?.hash;
         const videoInfoId = urlResponse.match(/\w+.id\s=\s'(?<id>.*?)';/is)?.groups?.id;
         const videoInfoType = urlResponse.match(/\w+.type\s=\s'(?<type>.*?)';/)?.groups?.type;
-        const validKodikUrl = new RegExp(/\/\/(get|cloud)\.kodik-storage\.com\/useruploads\/.*?\/.*?\/(240|360|480|720|1080)\.mp4:hls:manifest.m3u8/s);
+        const validKodikUrl = new RegExp(/\/\/(get|cloud)\.(kodik-storage|solodcdn)\.com\/useruploads\/.*?\/.*?\/(240|360|480|720|1080)\.mp4:hls:manifest.m3u8/s);
 
         if (!videoInfoHash || !videoInfoId || !videoInfoType) return null;
 
