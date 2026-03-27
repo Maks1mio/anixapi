@@ -226,6 +226,12 @@ export interface IChannelPermissionManageRequest {
     permission: number
 }
 
+export interface IArticleEventRequest {
+    type: "view" | "open" | "read",
+    entry_point: "article" | "feed" | "channel" | "latest" | "search" | "unknown",
+    articles: number[]
+}
+
 export enum ArticleCreateEditResult {
     InvalidRepostArticle = 2,
     InvalidPayload = 3,
@@ -318,4 +324,11 @@ export enum ArticleSuggestionPublishResult {
 export enum ArticleSuggestionDeleteResult {
     ArticleSuggestionNotFound = 2,
     ArticleSuggestionNotOwned = 3
+}
+
+export enum ArticleEditPinnedResult {
+    ArticleDeleted = 2,
+    ArticleNotFound = 3,
+    ChannelNotFound = 4,
+    ChannelNotOwned = 5
 }
