@@ -81,7 +81,7 @@ export class KodikParser {
         const videoInfoHash = urlResponse.match(/\w+.hash\s=\s'(?<hash>.*?)';/is)?.groups?.hash;
         const videoInfoId = urlResponse.match(/\w+.id\s=\s'(?<id>.*?)';/is)?.groups?.id;
         const videoInfoType = urlResponse.match(/\w+.type\s=\s'(?<type>.*?)';/)?.groups?.type;
-        const validKodikUrl = new RegExp(/\/\/(get|cloud)\.(kodik-storage|solodcdn)\.com\/useruploads\/.*?\/.*?\/(240|360|480|720|1080)\.mp4:hls:manifest.m3u8/s);
+        const validKodikUrl = /\/\/(get|cloud)\.(kodik-storage|solodcdn)\.com\/useruploads\/.*?\/.*?\/(240|360|480|720|1080)\.mp4:hls:manifest.m3u8/s;
 
         if (!videoInfoHash || !videoInfoId || !videoInfoType) return null;
 
@@ -276,8 +276,8 @@ export class AniLibriaParser {
     private static _baseAniLibriaDomain = 'aniliberty.top'
     private static _endpointUrl = '/api/v1/anime/releases'
 
-    public static idPattern = new RegExp(/id=(?<id>\d+)/g);
-    public static episodePattern =  new RegExp(/ep=(?<ep>\d+)/g)
+    public static idPattern = /id=(?<id>\d+)/;
+    public static episodePattern = /ep=(?<ep>\d+)/;
 
     public static async getDirectLinks(link: string): Promise<AniLibriaReturnObject | null> {
         const id = this.idPattern.exec(link)?.groups?.id;
@@ -315,7 +315,7 @@ export class AniLibriaParser {
 export class SibnetParser {
     private static _baseSibnetDomain = 'video.sibnet.ru';
 
-    public static srcMatch = new RegExp(/src: (".*?")/g);
+    public static srcMatch = new RegExp(/src: (".*?")/);
 
     public static async getDirectLink(link: string): Promise<string | null> {
         const request = await fetch(link);
