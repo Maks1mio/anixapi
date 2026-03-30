@@ -1,8 +1,9 @@
 //Thanks Nekonyx for this types (https://github.com/Nekonyx/anixart-api/blob/master/src/contracts/profile.ts)
 
-import { IResponse } from "./response";
+import { IBaseComment, IResponse } from "./response";
 import { IBaseRequestPageable } from "./request";
-import { IRelease, IVoteRelease } from "./release";
+import { IRelease, IVideo, IVoteRelease } from "./release";
+import { ICollection } from "./collection";
 
 export enum BookmarkType {
     Watching = 1,
@@ -34,6 +35,10 @@ export interface IProfileToken {
     token: string
 }
 
+export interface ICommentPreview extends IBaseComment {
+    commentType: string
+}
+
 export interface IProfile {
     id: number
     login: string
@@ -42,6 +47,10 @@ export interface IProfile {
     sponsorshipExpires: number
     history: IRelease[]
     votes: IVoteRelease[]
+    friends_preview: IProfileShort[]
+    collections_preview: ICollection[]
+    comments_preview: ICommentPreview[]
+    release_video_preview: IVideo[]
     last_activity_time: number
     register_date: number
     vk_page: string
@@ -51,7 +60,6 @@ export interface IProfile {
     discord_page: string
     ban_expires: number
     ban_reason: string
-    ban_note: string | null,
     privilege_level: number
     watching_count: number
     plan_count: number
@@ -63,16 +71,22 @@ export interface IProfile {
     collection_count: number
     video_count: number
     friend_count: number
+    subscription_count: number
     watched_episode_count: number
     watched_time: number
+    pinned_section_id: number
     is_private: boolean
     is_sponsor: boolean
     is_banned: boolean
+    is_incognito: boolean
+    is_deleted: boolean
+    is_deletion_requested: boolean
     is_perm_banned: boolean
     is_bookmarks_transferred: boolean
     is_sponsor_transferred: boolean
     is_vk_bound: boolean
     is_google_bound: boolean
+    is_article_notifications_enabled: boolean
     is_release_type_notifications_enabled: boolean
     is_episode_notifications_enabled: boolean
     is_first_episode_notification_enabled: boolean
@@ -80,9 +94,12 @@ export interface IProfile {
     is_report_process_notifications_enabled: boolean
     is_comment_notifications_enabled: boolean
     is_my_collection_comment_notifications_enabled: boolean
+    is_my_article_comment_notifications_enabled: boolean
     is_verified: boolean
+    deletion_requested_at: number
+    deletion_delete_at: number
     watch_dynamics: IWatchDynamics[]
-    friend_status: number
+    friend_status: number | null
     rating_score: number
     is_blocked: boolean
     is_me_blocked: boolean
