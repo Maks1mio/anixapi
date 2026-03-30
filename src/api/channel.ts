@@ -206,4 +206,8 @@ export class Channel {
     public async articleEvent(eventRequest: IArticleEventRequest, options?: IBaseApiParams): Promise<IResponse> {
         return await this.client.call<DefaultResult, IResponse>({ path: `/article/event`, json: eventRequest, ...options });
     }
+
+    public async articleMute(id: number, isMuted: boolean = true, options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<DefaultResult, IResponse>({ path: `/article/${isMuted ? "mute" : "unmute"}/${id}`, ...options });
+    }
 }
