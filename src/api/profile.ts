@@ -21,7 +21,8 @@ import {
     BookmarkExportResult,
     BlocklistAddResult,
     BookmarkType,
-    IChannel
+    IChannel,
+    IHealthStatusResponse
 } from "../types";
 
 /**
@@ -476,5 +477,22 @@ export class Profile {
      */
     public async removeFromBlocklist(id: number, options?: IBaseApiParams): Promise<IResponse<BlocklistAddResult>> {
         return await this.client.call<BlocklistAddResult, IResponse<BlocklistAddResult>>({ path: `/profile/blocklist/remove/${id}`, ...options });
+    }
+
+    /**
+     * Получения статуса здоровья профиля
+     * 
+     * Возвращает ответ {@link IHealthStatusResponse}.
+     * 
+     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
+     * 
+     * @param options - Дополнительные параметры
+     * @returns Код ответа
+     * 
+     * @example
+     * const result = await client.endpoints.profile.getHealthStatus();
+     */
+    public async getHealthStatus(options?: IBaseApiParams): Promise<IHealthStatusResponse> {
+        return await this.client.call<DefaultResult, IHealthStatusResponse>({ path: "/profile/health/status", ...options });
     }
 }

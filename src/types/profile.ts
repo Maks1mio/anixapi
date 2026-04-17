@@ -227,6 +227,15 @@ export interface ISocialResponse extends IResponse {
     discord_page: string
 }
 
+export interface IHealthStatusResponse extends IResponse {
+    ban_count: number,
+    ban_for_3_month_count: number,
+    last_ban_timestamp: number,
+    last_ban_expires: number,
+    blog_suspension_expires: number,
+    blog_mute_expires: number
+}
+
 export enum SendFriendRequestResult {
     RequestConfirmed = 2,
     RequestSent = 3,
