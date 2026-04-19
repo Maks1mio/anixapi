@@ -236,6 +236,40 @@ export interface IHealthStatusResponse extends IResponse {
     blog_mute_expires: number
 }
 
+export interface IProfileEnforcement {
+    type: "profile_ban" | "channel_suspension" | "channel_mute" | "article_edit" | "release_comment_edit" | "collection_comment_edit" | "article_comment_edit",
+    id: number,
+    reason: string | null,
+    creation_timestamp: number,
+    appeal_type: "UNKNOWN" | "NOT_AVAILABLE" | "MESSAGE" | "ADJUSTMENT",
+    appeal_status: "UNKNOWN" | "NOT_SUBMITTED" | "SUBMITTED" | "ACCEPTED" | "REJECTED",
+    appeal_submit_timestamp: number | null,
+    appeal_expires_timestamp: number | null,
+    appeal_process_message: string | null,
+    appeal_process_timestamp: number | null,
+    revocation_timestamp: number | null,
+    is_revoked: boolean
+}
+
+export interface IEditEnforcement<T> extends IProfileEnforcement {
+    entity_id: number,
+    entity: T | null,
+    changes: IEditEnforcementChange[]
+}
+
+export interface IEditEnforcementChange {
+    type: string,
+    new_value: any
+}
+
+export interface IExpiringEnforcement extends IProfileEnforcement {
+    expiration_timestamp: number
+}
+
+export interface IProfileEnforcementResponse extends IResponse {
+    enforcement: IEditEnforcement<any> | IExpiringEnforcement | IProfileEnforcement | null
+}
+
 export enum SendFriendRequestResult {
     RequestConfirmed = 2,
     RequestSent = 3,
