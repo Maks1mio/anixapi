@@ -3,6 +3,7 @@
  */
 
 import { ChildProcessWithoutNullStreams } from "child_process";
+import { json } from "stream/consumers";
 
 /**
  * KodikParser
@@ -339,6 +340,7 @@ export class SibnetParser {
 }
 
 /**
+ * RutubeParser
  * Парсер источника Rutube
  */
 export class RutubeParser {
@@ -387,6 +389,7 @@ export interface VKVideoTokenResponse {
 }
 
 /**
+ * VKVideoParser
  * Парсер источника VKVideo
  */
 export class VKVideoParser {
@@ -444,6 +447,53 @@ export class VKVideoParser {
             if (!width || !heigth || !url) break;
 
             directLinks[`${heigth}`] = `https://${vkServerUrl}${url}`;
+            directLinkMatch = this._regExpDirectLink.exec(hlsMasterBody);
+        }
+        while (directLinkMatch);
+        return directLinks;
+    }
+}
+
+/**
+ * OKParser
+ * Парсер источника OK
+ */
+export class OKParser {
+    private static _regExpDataOptions = /data-options="(?<content>{.*})"/m;
+    private static _regExpDirectLink = /^.*\s*RESOLUTION=(?<width>\d+)x(?<heigth>\d+)\n(?<url>.*)$/gm;
+    private static _okUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36";
+
+    public static async getDirectLinks(link: string): Promise<Record<string, string> | null> {
+        const request = await fetch(link, { headers: { 'User-Agent': this._okUserAgent } });
+        const body = await request.text();
+
+        const dataOptionsMatch = this._regExpDataOptions.exec(body)?.groups?.content ?? null;
+        if (!dataOptionsMatch) return null;
+
+        const dataOptions = dataOptionsMatch.replace(/&quot;/g, "\"").replace(/\\\\u0026/g, "&")
+        const dataOptionsJson = JSON.parse(dataOptions);
+        const metadataJson = JSON.parse(dataOptionsJson.flashvars.metadata);
+
+        if (metadataJson.provider != "UPLOADED_ODKL" || metadataJson.isLive) return null;
+
+        const hlsMasterRequest = await fetch(metadataJson.hlsManifestUrl, { headers: { 'User-Agent': this._okUserAgent } });
+        const hlsMasterBody = await hlsMasterRequest.text();
+        const okServerUrl = new URL(hlsMasterRequest.url).host;
+
+        let directLinkMatch = this._regExpDirectLink.exec(hlsMasterBody);
+
+        if (directLinkMatch?.length == 0) return null;
+
+        let directLinks: Record<string, string> = {};
+
+        do {
+            const width = directLinkMatch?.groups?.width ?? null;
+            const heigth = directLinkMatch?.groups?.heigth ?? null;
+            const url = directLinkMatch?.groups?.url ?? null;
+
+            if (!width || !heigth || !url) break;
+
+            directLinks[`${heigth}`] = `https://${okServerUrl}${url}`;
             directLinkMatch = this._regExpDirectLink.exec(hlsMasterBody);
         }
         while (directLinkMatch);
