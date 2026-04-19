@@ -337,3 +337,116 @@ export class SibnetParser {
         return null;
     }
 }
+
+/**
+ * Парсер источника Rutube
+ */
+export class RutubeParser {
+    private static _baseRutubeDomain = 'rutube.ru';
+    private static _regExpUrl = /(http|https):\/\/(?<domain>\w+.\w+)\/play\/embed\/(?<videoId>\w+)/;
+    private static _regExpDirectLink = /^.*\s*RESOLUTION=(?<width>\d+)x(?<heigth>\d+)\n(?<url>.*)$/gm;
+
+    public static async getDirectLinks(link: string): Promise<Record<string, string> | null> {
+        const match = this._regExpUrl.exec(link)?.groups?.videoId ?? null;
+
+        if (!match) return null;
+
+        const request = await fetch(`https://${this._baseRutubeDomain}/api/play/options/${match}/?no_404=true&referer&pver=v2`);
+        const body = await request.json();
+        const balancerUrl = body['video_balancer'].default ?? null;
+
+        if (!balancerUrl) return null;
+
+        const balancerRequest = await fetch(balancerUrl);
+        const balancerBody = await balancerRequest.text();
+
+        let directLinkMatch = this._regExpDirectLink.exec(balancerBody);
+
+        if (directLinkMatch?.length == 0) return null;
+
+        let directLinks: Record<string, string> = {};
+
+        do {
+            const width = directLinkMatch?.groups?.width ?? null;
+            const heigth = directLinkMatch?.groups?.heigth ?? null;
+            const url = directLinkMatch?.groups?.url ?? null;
+
+            if (!width || !heigth || !url) break;
+
+            directLinks[`${heigth}`] = url;
+            directLinkMatch = this._regExpDirectLink.exec(balancerBody);
+        }
+        while (directLinkMatch);
+        return directLinks;
+    }
+}
+
+export interface VKVideoTokenResponse {
+    token: string;
+    expires_at: number;
+}
+
+/**
+ * Парсер источника VKVideo
+ */
+export class VKVideoParser {
+    private static _baseVkDomain = 'vk.com';
+    private static _iosUserAgent = "com.vk.vkvideo.prod/822 (iPhone, iOS 16.7.7, iPhone10,4, Scale/2.0) SAK/1.119";
+
+    private static oidRegExp = /[?&]oid=(?<oid>(-|)\d+)/;
+    private static idRegExp = /[?&]id=(?<id>(-|)\d+)/;
+    private static hashRegExp = /[?&]hash=(?<hash>\w+)/;
+    private static _regExpDirectLink = /^.*\s*RESOLUTION=(?<width>\d+)x(?<heigth>\d+)\n(?<url>.*)$/gm;
+    
+    public static async getDirectLinks(link: string): Promise<Record<string, string> | null> {
+        const oid = this.oidRegExp.exec(link)?.groups?.oid ?? null;
+        const id = this.idRegExp.exec(link)?.groups?.id ?? null;
+        const hash = this.hashRegExp.exec(link)?.groups?.hash ?? null;
+
+        if (!oid || !id || !hash) return null;
+
+        const uuid = crypto.randomUUID();
+        const tokenResponse = await fetch(`https://oauth.${this._baseVkDomain}/oauth/get_anonym_token?client_id=51552953&client_secret=qgr0yWwXCrsxA1jnRtRX&device_id=${uuid}`, {
+            headers: {
+                'User-Agent': this._iosUserAgent,
+                'Host': `oauth.${this._baseVkDomain}`,
+            }
+        });
+
+        const anonymToken: VKVideoTokenResponse = await tokenResponse.json();
+
+        const getLinksResponse = await fetch(`https://api.${this._baseVkDomain}/method/video.get`, {
+            headers: {
+                'User-Agent': this._iosUserAgent,
+                'Host': `api.${this._baseVkDomain}`,
+            },
+            method: 'POST',
+            body: `anonymous_token=${anonymToken.token}&device_id=${uuid}&lang=en&v=5.244&videos=${oid}_${id}_${hash}`,
+        });
+
+        const getLinksResponseJson = await getLinksResponse.json();
+        const hlsMasterRequest = await fetch(getLinksResponseJson.response.items[0].files.hls);
+        const vkServerUrl = new URL(hlsMasterRequest.url).host;
+
+        const hlsMasterBody = await hlsMasterRequest.text();
+
+        let directLinkMatch = this._regExpDirectLink.exec(hlsMasterBody);
+
+        if (directLinkMatch?.length == 0) return null;
+
+        let directLinks: Record<string, string> = {};
+
+        do {
+            const width = directLinkMatch?.groups?.width ?? null;
+            const heigth = directLinkMatch?.groups?.heigth ?? null;
+            const url = directLinkMatch?.groups?.url ?? null;
+
+            if (!width || !heigth || !url) break;
+
+            directLinks[`${heigth}`] = `https://${vkServerUrl}${url}`;
+            directLinkMatch = this._regExpDirectLink.exec(hlsMasterBody);
+        }
+        while (directLinkMatch);
+        return directLinks;
+    }
+}
