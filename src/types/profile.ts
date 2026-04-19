@@ -168,7 +168,7 @@ export interface IProfileShort {
     is_sponsor: boolean,
     is_verified: boolean,
     is_online: boolean,
-    friend_status: number,
+    friend_status: number | null,
     friend_count: number
 }
 
