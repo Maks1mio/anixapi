@@ -15,7 +15,6 @@ export class FullProfile extends BaseProfile {
     public readonly instPage: string;
     public readonly ttPage: string;
     public readonly discordPage: string;
-    public readonly banNote: unknown;
     public readonly watchingCount: number;
     public readonly planCount: number;
     public readonly completedCount: number;
@@ -99,7 +98,6 @@ export class FullProfile extends BaseProfile {
         this.instPage = profile.inst_page;
         this.ttPage = profile.tt_page;
         this.discordPage = profile.discord_page;
-        this.banNote = profile.ban_note;
         this.watchingCount = profile.watching_count;
         this.planCount = profile.plan_count;
         this.completedCount = profile.completed_count;

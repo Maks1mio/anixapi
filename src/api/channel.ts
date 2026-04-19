@@ -41,7 +41,9 @@ import {
     IProfileChannel,
     BlogCreateResult,
     ChannelPermissionManageResult,
-    IChannelPermissionManageRequest
+    IChannelPermissionManageRequest,
+    ArticleEditPinnedResult,
+    IArticleEventRequest
 } from "../types";
 import { Utils } from "../utils/Utils";
 
@@ -195,5 +197,17 @@ export class Channel {
 
     public async getChannelPermissions(id: number, page: number, options?: IBaseApiParams): Promise<IPageableResponse<IProfileChannel>> {
         return await this.client.call<DefaultResult, IPageableResponse<IProfileChannel>>({ path: `/channel/${id}/permission/all/${page}`, ...options});
+    }
+
+    public async editPinnedArticle(id: number, isPinned: boolean, options?: IBaseApiParams): Promise<IResponse<ArticleEditPinnedResult>> {
+        return await this.client.call<ArticleEditPinnedResult, IResponse<ArticleEditPinnedResult>>({ path: `/article/edit/pinned/${id}`, queryParams: { is_pinned: isPinned }, ...options});
+    }
+
+    public async articleEvent(eventRequest: IArticleEventRequest, options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<DefaultResult, IResponse>({ path: `/article/event`, json: eventRequest, ...options });
+    }
+
+    public async articleMute(id: number, isMuted: boolean = true, options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<DefaultResult, IResponse>({ path: `/article/${isMuted ? "mute" : "unmute"}/${id}`, ...options });
     }
 }

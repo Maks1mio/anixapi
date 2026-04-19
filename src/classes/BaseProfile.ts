@@ -17,7 +17,7 @@ export class BaseProfile {
     public readonly isSponsor: boolean;
     public readonly isVerified: boolean;
     public readonly isOnline: boolean;
-    public readonly friendStatus: number;
+    public readonly friendStatus: number | null;
     public readonly friendCount: number;
 
     constructor (protected readonly client: Anixart, profile: IProfileShort) {
