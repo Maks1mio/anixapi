@@ -2,9 +2,6 @@
  * Парсер различных источников
  */
 
-import { ChildProcessWithoutNullStreams } from "child_process";
-import { json } from "stream/consumers";
-
 /**
  * KodikParser
  * Парсер источника Kodik
