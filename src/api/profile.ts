@@ -27,6 +27,7 @@ import {
   IEditEnforcement,
   IExpiringEnforcement,
   IProfileEnforcement,
+  IArticleComment,
 } from "../types";
 
 /**
@@ -734,15 +735,15 @@ export class Profile {
 
   /**
    * Получение конкретного действия
-   * 
+   *
    * Возвращает ответ {@link IProfileEnforcementResponse}.
-   * 
+   *
    * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
-   * 
+   *
    * @param id - ID действия
    * @param options - Дополнительные параметры
    * @returns Действие
-   * 
+   *
    * @example
    * const result = await client.endpoints.profile.getEnforcement(1);
    */
@@ -752,6 +753,35 @@ export class Profile {
   ): Promise<IProfileEnforcementResponse> {
     return await this.client.call<DefaultResult, IProfileEnforcementResponse>({
       path: `/profile/health/enforcement/${id}`,
+      ...options,
+    });
+  }
+
+  /**
+   * Получение комментариев под постами от конкретного профиля
+   * 
+   * Возвращает список {@link IArticleComment} внутри {@link IPageableResponse}.
+   * 
+   * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
+   * 
+   * @param id - ID профиля
+   * @param page - Номер страницы
+   * @param options - Дополнительные параметры
+   * @returns Список комментариев
+   * 
+   * @example
+   * const result = await client.endpoints.profile.getArticleComments(1, 0);
+   */
+  public async getArticleComments(
+    id: number,
+    page: number,
+    options?: IBaseApiParams,
+  ): Promise<IPageableResponse<IArticleComment>> {
+    return await this.client.call<
+      DefaultResult,
+      IPageableResponse<IArticleComment>
+    >({
+      path: `/article/comment/all/profile/${id}/${page}`,
       ...options,
     });
   }
