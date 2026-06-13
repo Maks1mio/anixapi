@@ -1,5 +1,5 @@
 import { Anixart } from "../client";
-import { ICollection, DefaultResult, Writable, FavoriteCollectionAddResult, FavoriteCollectionDeleteResult, ReleaseAddCollectionResult, CollectionDeleteResult } from "../types";
+import { ICollection, DefaultResult, Writable, FavoriteCollectionAddResult, FavoriteCollectionDeleteResult, ReleaseAddCollectionResult, CollectionDeleteResult, IPageableResponse, IRelease, ICollectionResponse } from "../types";
 import { FullProfile } from "./FullProfile";
 import { Release } from "./Release";
 
@@ -41,43 +41,43 @@ export class Collection {
     }
         
     public async getReleases(page: number): Promise<Array<Release>> {
-        const request = await this.client.endpoints.collection.getCollectionReleases(this.id, page);
+        const request = await this.client.endpoints.collection.releases(this.id, page) as IPageableResponse<IRelease>;
 
         return request.content.map(x => new Release(this.client, x));
     }
 
     public async addToFavorite(): Promise<DefaultResult | FavoriteCollectionAddResult> {
-        const request = await this.client.endpoints.collection.addCollectionFavorite(this.id);
+        const request = await this.client.endpoints.collectionFavorite.add(this.id);
 
         return request.code;
     }
 
     public async removeInFavorite(): Promise<DefaultResult | FavoriteCollectionDeleteResult> {
-        const request = await this.client.endpoints.collection.removeCollectionFavorite(this.id);
+        const request = await this.client.endpoints.collectionFavorite.delete(this.id);
 
         return request.code;
     }
 
     public async addRelease(id: number): Promise<DefaultResult | ReleaseAddCollectionResult> {
-        const request = await this.client.endpoints.collection.addReleaseToCollection(this.id, id);
+        const request = await this.client.endpoints.collectionMy.releaseAdd(this.id, { release_id: id });
 
         return request.code;
     }
 
     public async delete(): Promise<DefaultResult | CollectionDeleteResult> {
-        const request = await this.client.endpoints.collection.deleteCollection(this.id);
+        const request = await this.client.endpoints.collectionMy.delete(this.id);
 
         return request.code;
     }
 
     public async edit(title: string, description: string, releases: Release[], isPrivate: boolean): Promise<Collection|null> {
-        const request = await this.client.endpoints.collection.editCollection(this.id, {
+        const request = await this.client.endpoints.collectionMy.edit(this.id, {
             title,
             description,
             releases: releases.map(x => x.id),
             is_private: isPrivate
-        })
+        }) as ICollectionResponse;
 
-        return request.code == DefaultResult.Ok ? new Collection(this.client, request.collection) : null;
+        return request.code == DefaultResult.Ok && request.collection ? new Collection(this.client, request.collection) : null;
     }
 }

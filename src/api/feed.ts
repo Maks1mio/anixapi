@@ -1,47 +1,49 @@
 import { Anixart } from "../client";
-import {
-    IPageableResponse,
-    IBaseApiParams,
-    IArticle,
-    DefaultResult
-} from "../types";
+import { DefaultResult, IArticle, IBaseApiParams, ILatestArticleResponse, IPageableResponse, IResponse } from "../types";
 
+
+/**
+ * Класс с эндпоинтами ленты
+ */
 export class Feed {
     public constructor(private readonly client: Anixart) { }
 
     /**
-     * Получение постов с каналов на которые подписан
-     * 
-     * Возвращает список {@link IArticle} внутри {@link IPageableResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
-     * 
-     * @param page - Номер страницы
-     * @param options - Дополнительные параметры
-     * @returns Список постов
-     * 
+     * GET feed/all/{page}
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IPageableResponse}
+     *
      * @example
-     * const result = await client.endpoints.feed.my(0);
+     * const result = await client.endpoints.feed.feed(1, ...);
      */
-    public async my(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IArticle>> {
-        return await this.client.call<DefaultResult, IPageableResponse<IArticle>>({ path: `/feed/my/all/${page}`, ...options });
+    public async feed(page: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IArticle>> {
+        return await this.client.call<number, IPageableResponse<IArticle>>({ path: `/feed/all/${page}`, queryParams: query, ...options });
     }
 
     /**
-     * Получение последних выложенных постов
-     * 
-     * Возвращает список {@link IArticle} внутри {@link IPageableResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
-     * 
-     * @param page - Номер страницы
-     * @param options - Дополнительные параметры
-     * @returns Список постов
-     * 
+     * GET feed/latest
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link ILatestArticleResponse}
+     *
      * @example
-     * const result = await client.endpoints.feed.latest(0);
+     * const result = await client.endpoints.feed.latestArticle(...);
      */
-    public async latest(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IArticle>> {
-        return await this.client.call<DefaultResult, IPageableResponse<IArticle>>({ path: `/article/latest/all/${page}`, method: "POST", ...options });
+    public async latestArticle(options?: IBaseApiParams): Promise<ILatestArticleResponse> {
+        return await this.client.call<number, ILatestArticleResponse>({ path: `/feed/latest`, ...options });
+    }
+
+    /**
+     * GET feed/latest/all/{page}
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IPageableResponse}
+     *
+     * @example
+     * const result = await client.endpoints.feed.latestArticles(1, ...);
+     */
+    public async latestArticles(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IArticle>> {
+        return await this.client.call<number, IPageableResponse<IArticle>>({ path: `/feed/latest/all/${page}`, ...options });
     }
 }

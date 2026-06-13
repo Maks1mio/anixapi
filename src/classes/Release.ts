@@ -1,5 +1,5 @@
 import { Anixart } from "../client";
-import { BookmarkType, IBaseCommentAddRequest, ICommentRelease, IEpisodeLastUpdate, IRelated, IRelease, IReleaseCategory, IReleaseStatus, IVideoBanners, DefaultResult, Writable, ReleaseAddCollectionResult, IEpisode } from "../types";
+import { BookmarkType, IBaseCommentAddRequest, ICommentRelease, ICommentReleaseResponse, IEpisodeLastUpdate, IRelated, IRelease, IReleaseCategory, IReleaseStatus, IVideoBanners, DefaultResult, Writable, ReleaseAddCollectionResult, IEpisode, IPageableResponse, ICollection, ITypeResponse } from "../types";
 import { Collection } from "./Collection";
 import { Dubber } from "./Dubber";
 import { ReleaseComment } from "./ReleaseComment";
@@ -154,21 +154,21 @@ export class Release {
     }
 
     public async getDubbers() {
-        const request = await this.client.endpoints.release.getDubbers(this.id);
+        const request = await this.client.endpoints.episode.types(this.id) as ITypeResponse;
 
         return request.types.map(dubber => new Dubber(this.client, dubber, this));
     }
 
     public async removeFromHistory(): Promise<DefaultResult> {
-        const request = await this.client.endpoints.release.removeFromHistory(this.id);
+        const request = await this.client.endpoints.history.delete(this.id);
 
         return request.code;
     }
 
     public async setFavorite(favorite: boolean): Promise<DefaultResult> {
         const request = favorite ?
-        await this.client.endpoints.release.addFavorite(this.id) :
-        await this.client.endpoints.release.removeFavorite(this.id);
+        await this.client.endpoints.favorite.add(this.id) :
+        await this.client.endpoints.favorite.delete(this.id);
 
         if (request.code == DefaultResult.Ok) {
             this.writeProperties("isFavorite", favorite);
@@ -178,7 +178,7 @@ export class Release {
     }
 
     public async addToList(type: BookmarkType): Promise<DefaultResult> {
-        const request = await this.client.endpoints.release.addToProfileList(this.id, type);
+        const request = await this.client.endpoints.profileList.add(type, this.id);
 
         if (request.code == DefaultResult.Ok) {
             this.writeProperties("profileListStatus", type);
@@ -188,7 +188,7 @@ export class Release {
     }
 
     public async removeFromList(type?: BookmarkType): Promise<DefaultResult> {
-        const request = await this.client.endpoints.release.removeFromProfileList(this.id, type ? type : this.profileListStatus);
+        const request = await this.client.endpoints.profileList.delete(type ? type : this.profileListStatus, this.id);
         
         if (request.code == DefaultResult.Ok) {
             this.writeProperties("profileListStatus", null);
@@ -198,19 +198,19 @@ export class Release {
     }
 
     public async getRelatedReleases(page: number = 0): Promise<Release[] | null> {
-        const request = await this.client.endpoints.release.getRelatedReleases(this.related.id, page);
+        const request = await this.client.endpoints.related.related(this.related.id, page) as IPageableResponse<IRelease>;
 
         return request.code == DefaultResult.Ok ? request.content.map(release => new Release(this.client, release)) : null;
     }
 
     public async getComments(page: number = 0, sort: number = 0): Promise<ReleaseComment[] | null> {
-        const request = await this.client.endpoints.release.getComments({ page, sort, id: this.id });
+        const request = await this.client.endpoints.releaseComment.comments(this.id, page, { sort }) as IPageableResponse<ICommentRelease>;
 
         return request.code == DefaultResult.Ok ? request.content.map(comment => new ReleaseComment(this.client, comment, this)) : null;
     }
 
     public async addComment(data: IBaseCommentAddRequest): Promise<ReleaseComment | null> {
-        const request = await this.client.endpoints.release.addComment(this.id, data);
+        const request = await this.client.endpoints.releaseComment.add(this.id, data) as ICommentReleaseResponse;
 
         if (request.code == DefaultResult.Ok) {
             this.writeProperties("commentCount", this.commentCount + 1)
@@ -221,7 +221,7 @@ export class Release {
     }
 
     public async addVote(vote: 1 | 2 | 3 | 4 | 5): Promise<DefaultResult> {
-        const request = await this.client.endpoints.release.addVote(this.id, vote);
+        const request = await this.client.endpoints.release.vote(this.id, vote);
 
         if (request.code == DefaultResult.Ok) {
             this.writeProperties("voteCount", this.voteCount + 1);
@@ -232,17 +232,13 @@ export class Release {
     }
 
     public async getCollections(page: number, sort: number = 0): Promise<Collection[]> {
-        const request = await this.client.endpoints.collection.getReleaseInCollection({
-            id: this.id,
-            sort,
-            page
-        });
+        const request = await this.client.endpoints.collection.releaseCollections(this.id, page, { sort }) as IPageableResponse<ICollection>;
 
         return request.content.map(x => new Collection(this.client, x));
     }
 
     public async addToCollection(id: number): Promise<DefaultResult | ReleaseAddCollectionResult> {
-        const request = await this.client.endpoints.collection.addReleaseToCollection(id, this.id);
+        const request = await this.client.endpoints.collectionMy.releaseAdd(id, { release_id: this.id });
 
         return request.code;
     }

@@ -1,6 +1,6 @@
 import { Release } from "./Release";
 import { Anixart } from "../client";
-import { IDubber } from "../types";
+import { IDubber, ISourcesResponse } from "../types";
 import { Source } from "./Source";
 
 export class Dubber {
@@ -27,7 +27,7 @@ export class Dubber {
     }
 
     public async getSources(): Promise<Source[]> {
-        const request = await this.client.endpoints.release.getDubberSources(this.release.id, this.id);
+        const request = await this.client.endpoints.episode.sources(this.release.id, this.id) as ISourcesResponse;
 
         return request.sources.map(source => new Source(this.client, source, this));
     }

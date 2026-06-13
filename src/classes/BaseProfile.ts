@@ -1,5 +1,5 @@
 import { Anixart } from "../client";
-import { IFriendRequestResponse, IPageableResponse, IProfileShort, IRelease, IVoteRelease, RemoveFriendRequestResult } from "../types";
+import { IFriendRequestResponse, IPageableResponse, IProfileShort, IRelease, IVoteRelease, ICollection } from "../types";
 import { Collection } from "./Collection";
 
 export class BaseProfile {
@@ -40,37 +40,39 @@ export class BaseProfile {
     }
 
     public async getFriends(page?: number): Promise<BaseProfile[]> {
-        const request = await this.client.endpoints.profile.getFriends({ id: this.id, page: page ?? 0 });
+        const request = await this.client.endpoints.profileFriend.friends(this.id, page ?? 0);
 
-        return request.content.map(profile => new BaseProfile(this.client, profile));
+        return request.content.map((profile: IProfileShort) => new BaseProfile(this.client, profile));
     }
 
     public async sendFriendRequest(): Promise<IFriendRequestResponse> {
-        const request = await this.client.endpoints.profile.sendFriendRequest(this.id);
+        const request = await this.client.endpoints.profileFriend.requestSend(this.id);
 
         return request;
     }
 
-    public async removeFriendRequest(): Promise<IFriendRequestResponse<RemoveFriendRequestResult>> {
-        const request = await this.client.endpoints.profile.removeFriendRequest(this.id);
+    public async removeFriendRequest(): Promise<IFriendRequestResponse> {
+        const request = await this.client.endpoints.profileFriend.requestRemove(this.id);
 
         return request
     }
 
     public async getVotedReleases(page?: number, sort?: number): Promise<IPageableResponse<IVoteRelease>> {
-        const request = await this.client.endpoints.profile.getVotedReleases(this.id, page ?? 0, sort ?? 1);
+        const request = await this.client.endpoints.profileReleaseVote.allReleaseVoted(this.id, page ?? 0, { sort: sort ?? 1 });
 
         return request;
     }
 
-    public async getUnvotedReleases(page?: number): Promise<IPageableResponse<IRelease>> {
-        const request = await this.client.endpoints.profile.getUnvotedReleases(page ?? "last");
+    public async getUnvotedReleases(page?: number | "last"): Promise<IPageableResponse<IRelease>> {
+        const request = typeof page === "number"
+            ? await this.client.endpoints.profileReleaseVote.allReleaseUnvoted(page)
+            : await this.client.endpoints.profileReleaseVote.lastReleaseUnvoted();
 
         return request;
     }
 
     public async getCollections(page?: number): Promise<Collection[]> {
-        const request = await this.client.endpoints.collection.getUserCollections(this.id, page ?? 0);
+        const request = await this.client.endpoints.collection.profileCollections(this.id, page ?? 0) as IPageableResponse<ICollection>;
 
         return request.content.map(x => new Collection(this.client, x));
     }

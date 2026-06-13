@@ -1,6 +1,6 @@
 import { Channel } from "./Channel";
 import { Anixart } from "../client";
-import { IArticle, DefaultResult, IBaseCommentAddRequest, VoteType, Writable, ArticleDeleteResult } from "../types";
+import { IArticle, DefaultResult, IBaseCommentAddRequest, VoteType, Writable, ArticleDeleteResult, IArticleCommentResponce, IPageableResponse, IArticleComment, IArticleCreateResponse } from "../types";
 import { ArticleComment } from "./ArticleComment";
 import { ArticleBuilder } from "../utils/ArticleBuilder";
 import { BaseArticle } from "./BaseArticle";
@@ -24,19 +24,19 @@ export class Article extends BaseArticle {
     }
 
     public async getComments(page?: number, sort?: number): Promise<ArticleComment[]> {
-        const request = await this.client.endpoints.channel.getComments(this.id, page ?? 0, sort ?? 2);
+        const request = await this.client.endpoints.articleComment.comments(this.id, page ?? 0, { sort: sort ?? 2 }) as IPageableResponse<IArticleComment>;
 
         return request.content.map(comment => new ArticleComment(this.client, comment));
     }
 
     public async addComment(data: IBaseCommentAddRequest): Promise<ArticleComment | null> {
-        const request = await this.client.endpoints.channel.addArticleComment(this.id, data);
+        const request = await this.client.endpoints.articleComment.add(this.id, data) as IArticleCommentResponce;
 
         return request.code == DefaultResult.Ok && request.comment ? new ArticleComment(this.client, request?.comment) : null;
     }
 
     public async setVote(type: VoteType): Promise<DefaultResult> {
-        const request = await this.client.endpoints.channel.voteArticle(this.id, type);
+        const request = await this.client.endpoints.article.vote(this.id, type);
 
         if (request.code == DefaultResult.Ok) {
             this.writeProperties("vote", type == this.vote ? 0 : type);
@@ -46,13 +46,13 @@ export class Article extends BaseArticle {
     }
 
     public async edit(data: ArticleBuilder): Promise<Article> {
-        const request = await this.client.endpoints.channel.editArticle(this.id, data.returnBuildAricle());
+        const request = await this.client.endpoints.article.edit(this.id, data.returnBuildAricle()) as IArticleCreateResponse;
 
         return new Article(this.client, request.article, this.channel);
     }
 
     public async delete(): Promise<DefaultResult | ArticleDeleteResult> {
-        const request = await this.client.endpoints.channel.removeArticle(this.id);
+        const request = await this.client.endpoints.article.delete(this.id);
 
         return request.code;
     }

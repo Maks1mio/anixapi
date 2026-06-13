@@ -1,6 +1,6 @@
 import { Anixart } from "../client";
 import { BaseComment } from "./BaseComment";
-import { IArticleComment, DefaultResult, VoteType, Writable, CommentDeleteResult } from "../types";
+import { IArticleComment, DefaultResult, VoteType, Writable, CommentDeleteResult, IPageableResponse, IProfileShort } from "../types";
 import { Article } from "./Article";
 import { BaseProfile } from "./BaseProfile";
 
@@ -17,25 +17,25 @@ export class ArticleComment extends BaseComment {
     }
 
     public async getVotes(page?: number, sort?: number): Promise<BaseProfile[]> {
-        const request = await this.client.endpoints.channel.getVotes(this.id, page ?? 0, sort ?? 2);
+        const request = await this.client.endpoints.articleComment.votes(this.id, page ?? 0, { sort: sort ?? 2 });
 
         return request.content.map(profile => new BaseProfile(this.client, profile));
     }
 
     public async getReplies(page?: number, sort?: number): Promise<ArticleComment[]> {
-        const request = await this.client.endpoints.channel.getCommentReplies(this.id, page ?? 0, sort ?? 2);
+        const request = await this.client.endpoints.articleComment.replies(this.id, page ?? 0, { sort: sort ?? 2 }) as IPageableResponse<IArticleComment>;
 
         return request.content.map(comment => new ArticleComment(this.client, comment));
     }
 
     public async delete(): Promise<DefaultResult | CommentDeleteResult> {
-        const request = await this.client.endpoints.channel.removeArticleComment(this.id);
+        const request = await this.client.endpoints.articleComment.delete(this.id);
 
         return request.code;
     }
 
     public async setVote(type: VoteType): Promise<DefaultResult> {
-        const request = await this.client.endpoints.channel.voteCommentArticle(this.id, type);
+        const request = await this.client.endpoints.articleComment.vote(this.id, type);
 
         if (request.code == DefaultResult.Ok) {
             this.writeProperties("vote", type == this.vote ? 0 : type);

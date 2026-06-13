@@ -7,4 +7,5 @@ export * from "./settings";
 export * from "./notification";
 export * from "./collection";
 export * from "./channel";
+export * from "./config";
 export type Writable<T> = { -readonly [K in keyof T]: T[K] }; 

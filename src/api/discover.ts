@@ -1,101 +1,75 @@
 import { Anixart } from "../client";
-import {
-    IPageableResponse,
-    IBaseApiParams,
-    IRelease,
-    ICommentRelease,
-    IInterestingRelease,
-    DefaultResult
-} from "../types";
+import { DefaultResult, IBaseApiParams, IInteresting, IPageableResponse, IRelease, IReleaseComment, IResponse } from "../types";
 
 
+/**
+ * Класс с эндпоинтами обзора
+ */
 export class Discover {
     public constructor(private readonly client: Anixart) { }
 
     /**
-     * Получение списка релизов которые сейчас смотрят
-     * 
-     * Возвращает список {@link IRelease} внутри {@link IPageableResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
-     * 
-     * @param page - Номер страницы
-     * @param options - Дополнительные параметры
-     * @returns Список релизов
-     * 
+     * POST discover/comments
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IPageableResponse}
+     *
      * @example
-     * const result = await client.endpoints.discover.getWatching(0);
+     * const result = await client.endpoints.discover.commentsWeek(...);
      */
-    public async getWatching(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
-        return await this.client.call<DefaultResult, IPageableResponse<IRelease>>({ path: `/discover/watching/${page}`, ...options });
+    public async commentsWeek(options?: IBaseApiParams): Promise<IPageableResponse<IReleaseComment>> {
+        return await this.client.call<number, IPageableResponse<IReleaseComment>>({ path: `/discover/comments`, method: 'POST', ...options });
     }
 
     /**
-     * Получение популяных комментариев (10 штук)
-     * 
-     * Возвращает список {@link ICommentRelease} внутри {@link IPageableResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
-     * 
-     * @param options - Дополнительные параметры
-     * @returns Список релизов
-     * 
+     * POST discover/discussing
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IPageableResponse}
+     *
      * @example
-     * const result = await client.endpoints.discover.getComments();
+     * const result = await client.endpoints.discover.discussing(...);
      */
-    public async getComments(options?: IBaseApiParams): Promise<IPageableResponse<ICommentRelease>> {
-        return await this.client.call<DefaultResult, IPageableResponse<ICommentRelease>>({ path: `/discover/comments`, ...options });
+    public async discussing(options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return await this.client.call<number, IPageableResponse<IRelease>>({ path: `/discover/discussing`, method: 'POST', ...options });
     }
 
     /**
-     * Получение самых обсуждаемых релизов (5 штук)
-     * 
-     * Возвращает список {@link IRelease} внутри {@link IPageableResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
-     * 
-     * @param options - Дополнительные параметры
-     * @returns Список релизов
-     * 
+     * POST discover/interesting
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IPageableResponse}
+     *
      * @example
-     * const result = await client.endpoints.discover.getDiscussing();
+     * const result = await client.endpoints.discover.interesting(...);
      */
-    public async getDiscussing(options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
-        return await this.client.call<DefaultResult, IPageableResponse<IRelease>>({ path: `/discover/discussing`, ...options });
+    public async interesting(options?: IBaseApiParams): Promise<IPageableResponse<IInteresting>> {
+        return await this.client.call<number, IPageableResponse<IInteresting>>({ path: `/discover/interesting`, method: 'POST', ...options });
     }
 
     /**
-     * Получение списка рекомендаций
-     * 
-     * Возвращает список {@link IRelease} внутри {@link IPageableResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
-     * 
-     * @param page - Номер страницы
-     * @param options - Дополнительные параметры
-     * @returns Список релизов
-     * 
+     * POST discover/recommendations/{page}
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IPageableResponse}
+     *
      * @example
-     * const result = await client.endpoints.discover.getRecommendations(0);
+     * const result = await client.endpoints.discover.recommendations(1, ...);
      */
-    public async getRecommendations(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
-        return await this.client.call<DefaultResult, IPageableResponse<IRelease>>({ path: `/discover/recommendations/${page}`, queryParams: { previous_page: page > 0 ? -1 : page - 1 }, ...options });
+    public async recommendations(page: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return await this.client.call<number, IPageableResponse<IRelease>>({ path: `/discover/recommendations/${page}`, method: 'POST', queryParams: query, ...options });
     }
 
     /**
-     * Получение списка интересных релизов
-     * 
-     * Возвращает список {@link IInterestingRelease} внутри {@link IPageableResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}
-     * 
-     * @param options - Дополнительные параметры
-     * @returns Список релизов
-     * 
+     * POST discover/watching/{page}
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IPageableResponse}
+     *
      * @example
-     * const result = await client.endpoints.discover.getInteresting(0);
+     * const result = await client.endpoints.discover.watching(1, ...);
      */
-    public async getInteresting(options?: IBaseApiParams): Promise<IPageableResponse<IInterestingRelease>> {
-        return await this.client.call<DefaultResult, IPageableResponse<IInterestingRelease>>({ path: `/discover/interesting`, ...options });
+    public async watching(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return await this.client.call<number, IPageableResponse<IRelease>>({ path: `/discover/watching/${page}`, method: 'POST', ...options });
     }
 }

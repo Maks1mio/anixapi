@@ -23,13 +23,13 @@ export class SuggestionArticle extends BaseArticle {
     }
 
     public async publish(): Promise<number | null> {
-        const request = await this.client.endpoints.channel.publishArticleSuggestion(this.id);
+        const request = await this.client.endpoints.articleSuggestion.publish(this.id);
 
-        return request.code == DefaultResult.Ok ? request.article_id : null;
+        return request.code == DefaultResult.Ok ? request.article?.id ?? null : null;
     }
 
     public async delete(): Promise<DefaultResult | ArticleSuggestionDeleteResult> {
-        const request = await this.client.endpoints.channel.removeArticleSuggestion(this.id);
+        const request = await this.client.endpoints.articleSuggestion.delete(this.id);
 
         return request.code;
     }

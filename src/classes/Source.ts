@@ -19,7 +19,7 @@ export class Source {
     }
 
     public async getEpisodes(sort: number = 1): Promise<Episode[]> {
-        const request = await this.client.endpoints.release.getEpisodes(this.dubber.release.id, this.dubber.id, this.id, sort);
+        const request = await this.client.endpoints.episode.episodes(this.dubber.release.id, this.dubber.id, this.id, { sort });
 
         return request.episodes.map(episode => new Episode(this.client, episode, this));
     }

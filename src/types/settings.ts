@@ -103,3 +103,28 @@ export enum PrivacyFriendRequestState {
 export interface IPasswordChangeResponse extends IResponse<ChangePasswordResult> {
     token: string
 }
+
+export interface ISelectThemeRequest {
+    theme: number
+}
+
+export interface ISelectPinnedSectionRequest {
+    section: number
+}
+
+export interface IChangeEmailVerifyResponse extends IResponse {}
+export interface IChangeLoginInfoResponse extends IResponse {
+    last_change_at?: number,
+    next_change_available_at?: number,
+    is_change_available?: boolean
+}
+export interface IChangeLoginResponse extends IResponse {}
+export interface IChangePasswordResponse extends IResponse {
+    token?: string
+}
+export interface IGoogleBindResponse extends IResponse {}
+export interface IGoogleUnbindResponse extends IResponse {}
+export interface IVkBindResponse extends IResponse {}
+export interface IVkUnbindResponse extends IResponse {}
+export interface ISocialEditResponse extends IResponse {}
+export interface IProfileSelectPinnedSectionResponse extends IResponse {}

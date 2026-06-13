@@ -1,13 +1,14 @@
 {
-  "name": "anixartjs",
-  "version": "0.1.8",
-  "description": "Anixart API Wrapper for NodeJS",
+  "name": "anixapi",
+  "version": "0.2.0",
+  "description": "Anixart API wrapper for Node.js (TypeScript)",
   "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rm -rf ./dist && tsc",
-    "build-win": "rd .\\dist /s /q && tsc"
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && rm -rf ./dist && tsc",
+    "build-win": "npm run typecheck && rd .\\dist /s /q && tsc"
   },
   "keywords": [
     "api",
@@ -15,12 +16,12 @@
     "wrapper",
     "anime"
   ],
-  "homepage": "https://github.com/theDesConnet/AnixartJS",
+  "homepage": "https://github.com/Maks1mio/AnixApi",
   "repository": {
     "type": "git",
-    "url": "https://github.com/theDesConnet/AnixartJS.git"
+    "url": "https://github.com/Maks1mio/AnixApi.git"
   },
-  "author": "Roman U. (DesConnet)",
+  "author": "Roman U. (DesConnet) & Maksim K. (Maks1mio)",
   "license": "GPL-2.0",
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -1,18 +1,6 @@
 import { Anixart } from "../client";
-import {
-    ILoginResponse,
-    ILoginRequest,
-    IRegisterRequest,
-    IRegisterResponse,
-    IRegisterVerifyRequest,
-    IBaseApiParams,
-    IRestorePasswordRequest,
-    LoginResult,
-    RegisterVerifyResult,
-    RegisterResult,
-    RestorePasswordResult,
-    RestorePasswordVerifyResult
-} from "../types";
+import { DefaultResult, IBaseApiParams, ILoginRequest, ILoginResponse, IOAuthGoogleSignInRequest, IOAuthGoogleSignUpRequest, IOAuthVkSignInRequest, IOAuthVkSignUpRequest, IRegisterResponse, IResendRequest, IResponse, IRestoreEmailRequest, IRestoreResendRequest, IRestoreVerifyRequest, ISignUpRequest, ISignUpVerifyRequest, LoginResult, RegisterResult, RegisterVerifyResult, RestorePasswordResult, RestorePasswordVerifyResult } from "../types";
+
 
 /**
  * Класс с эндпоинтами авторизации
@@ -21,135 +9,158 @@ export class Auth {
     public constructor(private readonly client: Anixart) { }
 
     /**
-     * Авторизация в профиль
-     * 
-     * Возвращает ответ {@link ILoginResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}, {@link LoginResult}
-     * 
-     * @param data - Данные для авторизации
-     * @param options - Дополнительные параметры
-     * @returns Информацию о профиле и токен
-     * 
+     * POST auth/firebase
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IResponse}
+     *
      * @example
-     * const result = await client.endpoints.auth.signIn({
-     *     login: 'username',   //Логин
-     *     password: 'password' //Пароль
-     * });
+     * const result = await client.endpoints.auth.firebase(...);
+     */
+    public async firebase(options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<number, IResponse>({ path: `/auth/firebase`, method: 'POST', ...options });
+    }
+
+    /**
+     * POST auth/resend
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IRegisterResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.resend(...);
+     */
+    public async resend(data: IResendRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
+        return await this.client.call<number, IRegisterResponse>({ path: `/auth/resend`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST auth/restore
+     *
+     * Возможные коды ответа: {@link RestorePasswordResult}
+     * @returns {@link IRegisterResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.restore(...);
+     */
+    public async restore(data: IRestoreEmailRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
+        return await this.client.call<number, IRegisterResponse>({ path: `/auth/restore`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST auth/restore/resend
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IRegisterResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.restoreResend(...);
+     */
+    public async restoreResend(data: IRestoreResendRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
+        return await this.client.call<number, IRegisterResponse>({ path: `/auth/restore/resend`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST auth/restore/verify
+     *
+     * Возможные коды ответа: {@link RestorePasswordVerifyResult}
+     * @returns {@link IResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.restoreVerify(...);
+     */
+    public async restoreVerify(data: IRestoreVerifyRequest, options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<number, IResponse>({ path: `/auth/restore/verify`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST auth/signIn
+     *
+     * Возможные коды ответа: {@link LoginResult}
+     * @returns {@link ILoginResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.signIn(...);
      */
     public async signIn(data: ILoginRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
-        return this.client.call<LoginResult, ILoginResponse>({
-            path: '/auth/signIn',
-            urlEncoded: data,
-            ...options
-        });
+        return await this.client.call<number, ILoginResponse>({ path: `/auth/signIn`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
-     * Регистрация в Anixart
-     * 
-     * Возвращает ответ {@link IRegisterResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}, {@link RegisterResult}
-     * 
-     * @param data - Данные для регистрации
-     * @param options - Дополнительные параметры
-     * @returns Хеш для подтверждения
-     * 
+     * POST auth/google
+     *
+     * Возможные коды ответа: {@link LoginResult}
+     * @returns {@link ILoginResponse}
+     *
      * @example
-     * const result = await client.endpoints.auth.signUp({
-     *     username: 'username',    //Логин
-     *     password: 'password',    //Пароль
-     *     email: 'email',          //Почта
-     * });
+     * const result = await client.endpoints.auth.signInWithGoogle(...);
      */
-    public async signUp(data: IRegisterRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
-        return this.client.call<RegisterResult, IRegisterResponse>({
-            path: '/auth/signUp',
-            urlEncoded: data,
-            ...options
-        })
+    public async signInWithGoogle(data: IOAuthGoogleSignInRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
+        return await this.client.call<number, ILoginResponse>({ path: `/auth/google`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
-     * Подтверждение регистрации
-     * 
-     * Возвращает ответ {@link ILoginResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}, {@link RegisterVerifyResult}
-     * 
-     * @param data - Данные для подтверждения
-     * @param options - Дополнительные параметры
-     * @returns Информацию о профиле и токен
-     * 
+     * POST auth/vk
+     *
+     * Возможные коды ответа: {@link LoginResult}
+     * @returns {@link ILoginResponse}
+     *
      * @example
-     * const result = await client.endpoints.auth.signUpVerify({
-     *     username: 'username',    //Логин
-     *     password: 'password',    //Пароль
-     *     email: 'email',          //Почта
-     *     hash: 'hash',            //Хеш
-     *     code: 0000,              //Код
-     * });
+     * const result = await client.endpoints.auth.signInWithVk(...);
      */
-    public async signUpVerify(data: IRegisterVerifyRequest, options?: IBaseApiParams): Promise<ILoginResponse<RegisterVerifyResult>> {
-        return this.client.call<RegisterVerifyResult, ILoginResponse<RegisterVerifyResult>>({
-            path: '/auth/verify',
-            urlEncoded: data,
-            ...options
-        })
+    public async signInWithVk(data: IOAuthVkSignInRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
+        return await this.client.call<number, ILoginResponse>({ path: `/auth/vk`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
-     * Восстановление аккаунта по почте
-     * 
-     * Возвращает ответ {@link IRegisterResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}, {@link RestorePasswordResult}
-     * 
-     * @param login - Логин пользователя
-     * @param options - Дополнительные параметры
-     * @returns Хеш для подтверждения
-     * 
+     * POST auth/signUp
+     *
+     * Возможные коды ответа: {@link RegisterResult}
+     * @returns {@link IRegisterResponse}
+     *
      * @example
-     * const result = await client.endpoints.auth.restore("login");
+     * const result = await client.endpoints.auth.signUp(...);
      */
-    public async restore(login: string, options?: IBaseApiParams): Promise<IRegisterResponse<RestorePasswordResult>> {
-        return this.client.call<RestorePasswordResult, IRegisterResponse<RestorePasswordResult>>({
-            path: '/auth/restore',
-            urlEncoded: { data: login },
-            ...options
-        })
+    public async signUp(data: ISignUpRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
+        return await this.client.call<number, IRegisterResponse>({ path: `/auth/signUp`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
-     * Подтверждение восстановления
-     * 
-     * Возвращает ответ {@link ILoginResponse}.
-     * 
-     * Возможные ответы API в виде enum смотреть здесь {@link DefaultResult}, {@link RestorePasswordVerifyResult}
-     * 
-     * @param data - Данные для подтверждения
-     * @param options - Дополнительные параметры
-     * @returns Информацию о профиле и токен
-     * 
+     * POST auth/google
+     *
+     * Возможные коды ответа: {@link LoginResult}
+     * @returns {@link ILoginResponse}
+     *
      * @example
-     * const result = await client.endpoints.auth.restoreVerify({
-     *     username: 'username',    //Логин
-     *     password: 'password',    //Пароль
-     *     hash: 'hash',            //Хеш
-     *     code: 0000,              //Код
-     * });
+     * const result = await client.endpoints.auth.signUpWithGoogle(...);
      */
-    public async restoreVerify(data: IRestorePasswordRequest, options?: IBaseApiParams): Promise<ILoginResponse<RestorePasswordVerifyResult>> {
-        return this.client.call<RestorePasswordVerifyResult, ILoginResponse<RestorePasswordVerifyResult>>({
-            path: '/auth/restore/verify',
-            urlEncoded: {
-                data: data.username,
-                password: data.password,
-                code: data.code,
-                hash: data.hash
-            },
-            ...options
-        })
+    public async signUpWithGoogle(data: IOAuthGoogleSignUpRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
+        return await this.client.call<number, ILoginResponse>({ path: `/auth/google`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST auth/vk
+     *
+     * Возможные коды ответа: {@link LoginResult}
+     * @returns {@link ILoginResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.signUpWithVk(...);
+     */
+    public async signUpWithVk(data: IOAuthVkSignUpRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
+        return await this.client.call<number, ILoginResponse>({ path: `/auth/vk`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST auth/verify
+     *
+     * Возможные коды ответа: {@link RegisterVerifyResult}
+     * @returns {@link IRegisterResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.verify(...);
+     */
+    public async verify(data: ISignUpVerifyRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
+        return await this.client.call<number, IRegisterResponse>({ path: `/auth/verify`, method: 'POST', urlEncoded: data, ...options });
     }
 }

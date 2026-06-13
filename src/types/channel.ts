@@ -52,6 +52,9 @@ export interface ISubsciptionCountResponse extends IResponse {
     subscription_count: number
 }
 
+/** @alias {@link ISubsciptionCountResponse} */
+export type ISubscriptionCountResponse = ISubsciptionCountResponse;
+
 export interface IArticleCommentResponce extends IResponse<CommentAddResult> {
     comment: IArticleComment
 }
@@ -331,4 +334,61 @@ export enum ArticleEditPinnedResult {
     ArticleNotFound = 3,
     ChannelNotFound = 4,
     ChannelNotOwned = 5
+}
+
+export interface IArticleDeleteResponse extends IResponse {}
+export interface IArticleMuteResponse extends IResponse {}
+export interface IArticleEditPinnedResponse extends IResponse {}
+export interface IArticleSuggestionDeleteResponse extends IResponse {}
+export interface IArticleVoteResponse extends IResponse {}
+export interface IChannelBlockManageResponse extends IResponse {}
+export interface IChannelPermissionManageResponse extends IResponse {}
+export interface IChannelSubscribeResponse extends IResponse {}
+export interface IChannelUnsubscribeResponse extends IResponse {}
+export interface IChannelUploadCoverAvatarResponse extends IResponse {
+    url?: string
+}
+
+export interface IChannelProfile {
+    block_expire_date?: number | null,
+    block_reason?: string | null,
+    channel_id: number,
+    permission_creation_date: number,
+    is_blocked: boolean,
+    is_perm_blocked: boolean,
+    permission: number
+}
+
+export interface IArticleCompact {
+    creation_date?: number,
+    last_update_date?: number,
+    id?: number
+}
+
+export interface IChannelBlock {
+    added_date?: number,
+    expire_date?: number | null,
+    is_perm_blocked?: boolean,
+    is_reason_showing_enabled?: boolean,
+    reason?: string | null
+}
+
+export interface IChannelCompact {
+    blog_profile_id?: number,
+    is_blog?: boolean,
+    is_commenting_enabled?: boolean,
+    is_deleted?: boolean,
+    avatar?: string,
+    cover?: string,
+    description?: string,
+    id?: number,
+    permission?: number,
+    title?: string
+}
+
+export interface IArticleCommentCompact {
+    article?: IArticle,
+    embeddable_description?: string,
+    embeddable_id?: number,
+    embeddable_title?: string
 }

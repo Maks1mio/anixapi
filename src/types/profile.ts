@@ -195,6 +195,15 @@ export interface IProfileResponse extends IResponse {
     is_my_profile: boolean
 }
 
+export interface IProfileInfoResponse extends IResponse {
+    channel_id?: number | null;
+    privilege_level: number;
+    rating_score: number;
+    sponsorship_expires: number;
+    is_sponsor: boolean;
+    is_perm_banned: boolean;
+}
+
 export interface IFriendsRequest extends IBaseRequestPageable {
     id: number
 }
@@ -293,4 +302,75 @@ export enum AchivementResult {
 
 export enum BlocklistAddResult {
     AlreadyInBlocklist = 2
+}
+
+export interface IChangeLogin {
+    id: number,
+    timestamp: number
+}
+
+export interface IProfileSocialResponse extends IResponse {
+    discord_page?: string,
+    inst_page?: string,
+    tg_page?: string,
+    tt_page?: string,
+    vk_page?: string
+}
+
+export interface IProfileListResponse extends IResponse {}
+export interface IBlockProfileListAddResponse extends IResponse {}
+export interface IProfileEnforcementAppealResponse extends IResponse {}
+export interface IBookmarksImportStatusResponse extends IResponse {}
+export interface IAchievementResponse extends IResponse {}
+
+export interface IProfileRole {
+    is_online?: boolean
+}
+
+export interface IProfileSlim {
+    avatar: string,
+    id: number,
+    login: string
+}
+
+export interface IProfileGenre {
+    percentage?: number
+}
+
+export interface IProfileWatchDynamics {
+    count?: number,
+    day?: number,
+    id?: number,
+    timestamp?: number
+}
+
+export interface IRoleDto {
+    id: number
+}
+
+export interface ITheme {
+    name?: string,
+    theme_animation_enabled?: boolean,
+    theme_animation_speed?: string | null,
+    theme_background_alpha?: number | null,
+    theme_background_mode?: string | null,
+    theme_background_url?: string | null,
+    theme_enabled?: boolean,
+    theme_gradient_angle?: string | null,
+    theme_gradient_end_color?: string | null,
+    theme_gradient_start_color?: string | null,
+    theme_icon_alpha?: number,
+    theme_icon_color?: string | null,
+    theme_icon_density?: string | null,
+    theme_icon_res_name?: string | null,
+    theme_icon_size?: string | null,
+    theme_icon_url?: string | null
+}
+
+export interface IAvailableTheme {
+    id: number
+}
+
+export interface IUser {
+    id: number
 }

@@ -29,14 +29,14 @@ export class Episode {
 
     public async setWatched(isWatched: boolean): Promise<DefaultResult> {
         const request = isWatched ? 
-        await this.client.endpoints.release.markEpisodeAsWatched(this.source.dubber.release.id, this.source.id, this.position) 
-        : await this.client.endpoints.release.unmarkEpisodeAsWatched(this.source.dubber.release.id, this.source.id, this.position);
+        await this.client.endpoints.episode.watch(this.source.dubber.release.id, this.source.id, this.position) 
+        : await this.client.endpoints.episode.unwatch(this.source.dubber.release.id, this.source.id, this.position);
 
         return request.code;
     }
 
     public async addToHistory(): Promise<DefaultResult> {
-        const request = await this.client.endpoints.release.addToHistory(this.source.dubber.release.id, this.source.id, this.position);
+        const request = await this.client.endpoints.history.add(this.source.dubber.release.id, this.source.id, this.position);
 
         return request.code;
     }

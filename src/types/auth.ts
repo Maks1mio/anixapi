@@ -63,11 +63,87 @@ export interface IRegisterVerifyRequest extends IRegisterRequest {
 
 export interface IRestorePasswordRequest extends Omit<IRegisterVerifyRequest, "email"> {}
 
+/** POST auth/restore — поле data (email или логин) */
+export interface IRestoreEmailRequest {
+    data: string;
+}
+
+/** POST auth/restore/verify */
+export interface IRestoreVerifyRequest {
+    data: string;
+    password: string;
+    hash: string;
+    code: number;
+}
+
+/** POST auth/signUp, auth/vk, auth/google (регистрация) */
+export interface ISignUpRequest {
+    login: string;
+    email: string;
+    password: string;
+}
+
+/** POST auth/verify */
+export interface ISignUpVerifyRequest extends ISignUpRequest {
+    vkAccessToken?: string;
+    googleIdToken?: string;
+    hash: string;
+    code: number;
+}
+
 export interface ILoginRequest {
     login: string;
     password: string;
 }
+
+export interface IResendRequest {
+    login?: string,
+    email?: string,
+    password?: string,
+    vkAccessToken?: string,
+    googleIdToken?: string,
+    hash: string
+}
+
+export interface IRestoreResendRequest {
+    data: string,
+    password: string,
+    hash: string
+}
+
+export interface IOAuthGoogleSignInRequest {
+    googleIdToken: string
+}
+
+export interface IOAuthGoogleSignUpRequest {
+    login: string,
+    email: string,
+    googleIdToken: string
+}
+
+export interface IOAuthVkSignInRequest {
+    vkAccessToken: string
+}
+
+export interface IOAuthVkSignUpRequest {
+    login: string,
+    email: string,
+    vkAccessToken: string
+}
 export interface ILoginResponse<T extends number = LoginResult> extends IResponse<T> {
     profile: IProfile;
     profileToken: IProfileToken;
+}
+
+export interface ISignResponse extends IResponse {
+    sign?: string
+}
+
+export interface ISponsorResponse extends IResponse {
+    is_sponsor?: boolean
+}
+
+export interface IUserResponse extends IResponse {
+    id?: number,
+    is_sponsor?: boolean
 }

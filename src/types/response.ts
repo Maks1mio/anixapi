@@ -44,6 +44,10 @@ export interface IPageableResponse<T> extends IResponse {
     current_page: number
 }
 
+export interface IList<T = unknown> {
+    items?: T[]
+}
+
 export interface IScheduleResponse extends IResponse {
     monday: IRelease[],
     tuesday: IRelease[],
@@ -85,4 +89,26 @@ export interface IBaseCompactComment {
 
 export interface IUrlResponse extends IResponse {
     url: string
+}
+
+export interface ICommentAddResponse extends IResponse<CommentAddResult> {
+    comment?: unknown
+}
+
+export interface ICommentReportResponse extends IResponse {}
+export interface ICommentVoteResponse extends IResponse {}
+export interface IFavoritesResponse extends IResponse {}
+export interface IHistoryResponse extends IResponse {}
+export interface IReportResponse extends IResponse {}
+
+export interface IDirectLinksResponse extends IResponse {
+    '1080p'?: string,
+    '360p'?: string,
+    '480p'?: string,
+    '720p'?: string,
+    default?: string,
+    q1080p?: string,
+    q360p?: string,
+    q480p?: string,
+    q720p?: string
 }

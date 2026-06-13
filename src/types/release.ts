@@ -371,3 +371,154 @@ export interface IExportRelease {
 export interface IReleasesInBookmarksSearchRequest extends IBaseSearchRequest {
     type: BookmarkType
 }
+
+export type IEpisodeUpdate = ILastEpisodeUpdate;
+
+export interface IEpisodeUnwatchResponse extends IResponse {}
+export interface IEpisodeWatchResponse extends IResponse {}
+export interface IReleaseReportResponse extends IResponse {}
+export interface IReleaseVideoAppealResponse extends IResponse {}
+export interface IReleaseVideoCategoriesResponse extends IResponse {}
+
+export interface IReleaseComment extends ICommentRelease {
+    posted_at_episode?: number
+}
+
+export interface IInteresting {
+    id: number,
+    is_hidden: boolean,
+    type: number
+}
+
+export interface IReleaseStreamingPlatform {
+    id: number
+}
+
+export interface IReleaseVideo {
+    favorites_count?: number,
+    player_url?: string,
+    is_favorite?: boolean,
+    category?: unknown,
+    delete?: boolean,
+    favorite_count?: number,
+    hosting?: unknown,
+    id: number,
+    timestamp?: number,
+    title?: string
+}
+
+export interface IReleaseVideoCategory {
+    id: number
+}
+
+export interface IReleaseVideoHosting {
+    id: number
+}
+
+export interface IReleaseVideoBlock {
+    category?: unknown
+}
+
+export interface IReleaseVideoBanner {
+    action_id?: number,
+    is_new?: boolean
+}
+
+export interface IReportReason {
+    id: number
+}
+
+export interface ICustomFilter {
+    id?: number,
+    is_genres_exclude_mode_enabled?: boolean,
+    selected_age_ratings?: number[],
+    selected_category_id?: number,
+    selected_end_year?: number,
+    selected_episode_duration?: number,
+    selected_episodes?: number,
+    selected_genres?: number[],
+    selected_profile_list_exclusions?: number[],
+    selected_season?: number,
+    selected_sort?: number,
+    selected_start_year?: number,
+    selected_status_id?: number,
+    selected_types?: number[]
+}
+
+export interface IEpisodeCompact {
+    name?: string,
+    release?: IRelease | number,
+    source?: ISource | number
+}
+
+export interface ILastWatchedEpisode {
+    episode_id?: number,
+    id?: number,
+    release_id?: number,
+    source_id?: number,
+    timestamp?: number,
+    type_id?: number
+}
+
+export interface ISourceCompact {
+    name?: string,
+    type?: IDubber | number
+}
+
+export interface IReleaseType {
+    episodes_count?: number,
+    pinned?: boolean,
+    view_count?: number,
+    is_sub?: boolean,
+    id: number
+}
+
+export interface IReleaseTypeCompact {
+    name?: string
+}
+
+export interface ICategory {
+    id: number
+}
+
+export interface IGenre {
+    id: number
+}
+
+export interface IReleaseCompact {
+    title_ru?: string,
+    id: number,
+    image?: string
+}
+
+export interface IReleaseGenre {
+    genre?: IGenre | number,
+    release?: IRelease | number
+}
+
+export interface ISearch {
+    id: number,
+    ts_last_request?: number
+}
+
+export interface ICommentWeek {
+    vote_count?: number,
+    is_edited?: boolean,
+    is_spoiler?: boolean,
+    id: number,
+    timestamp?: number
+}
+
+export interface IPopularComment {
+    vote_count?: number,
+    id: number,
+    timestamp?: number
+}
+
+export interface IReleaseCommentCompact {
+    embeddable_id?: number,
+    embeddable_title?: string,
+    release?: IRelease | number
+}
+
+export interface ITorlook {}

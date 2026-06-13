@@ -1,5 +1,5 @@
 import { Anixart } from '../client';
-import { ICommentRelease, Writable, DefaultResult, VoteType, CommentDeleteResult, CommentEditResult } from '../types';
+import { ICommentRelease, Writable, DefaultResult, VoteType, CommentDeleteResult, CommentEditResult, IPageableResponse, IProfileShort } from '../types';
 import { BaseComment } from './BaseComment';
 import { BaseProfile } from './BaseProfile';
 import { Release } from './Release';
@@ -17,25 +17,25 @@ export class ReleaseComment extends BaseComment {
         }
     
         public async getVotes(page?: number, sort?: number): Promise<BaseProfile[]> {
-            const request = await this.client.endpoints.channel.getVotes(this.id, page ?? 0, sort ?? 2);
+            const request = await this.client.endpoints.releaseComment.votes(this.id, page ?? 0, { sort: sort ?? 2 });
     
             return request.content.map(profile => new BaseProfile(this.client, profile));
         }
     
         public async getReplies(page?: number, sort?: number): Promise<ReleaseComment[]> {
-            const request = await this.client.endpoints.release.getCommentReplies({id: this.id, page: page ?? 0, sort: sort ?? 2});
+            const request = await this.client.endpoints.releaseComment.replies(this.id, page ?? 0, { sort: sort ?? 2 }) as IPageableResponse<ICommentRelease>;
     
             return request.content.map(comment => new ReleaseComment(this.client, comment));
         }
     
         public async delete(): Promise<DefaultResult | CommentDeleteResult> {
-            const request = await this.client.endpoints.release.removeComment(this.id);
+            const request = await this.client.endpoints.releaseComment.delete(this.id);
 
             return request.code;
         }
     
         public async setVote(type: VoteType): Promise<DefaultResult> {
-            const request = await this.client.endpoints.release.voteComment(this.id, type);
+            const request = await this.client.endpoints.releaseComment.vote(this.id, type);
     
             if (request.code == DefaultResult.Ok) {
                 this.writeProperties("vote", type == this.vote ? 0 : type);
@@ -45,7 +45,7 @@ export class ReleaseComment extends BaseComment {
         }
 
         public async edit(content: string, isSpoiler: boolean): Promise<DefaultResult | CommentEditResult> {
-            const request = await this.client.endpoints.release.editComment(this.id, content, isSpoiler);
+            const request = await this.client.endpoints.releaseComment.edit(this.id, { message: content, spoiler: isSpoiler });
 
             if (request.code == DefaultResult.Ok) {
                 this.writeProperties("message", content);

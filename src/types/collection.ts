@@ -1,6 +1,6 @@
 import { IProfile } from "./profile";
 import { IRelease } from "./release";
-import { IBaseComment, IBaseCompactComment, IResponse } from "./response";
+import { IBaseComment, IBaseCompactComment, IResponse, CommentAddResult } from "./response";
 import { IBaseRequestPageable } from "./request";
 
 export interface ICollection {
@@ -55,6 +55,10 @@ export interface ICollectionComment extends IBaseComment {
     collection: ICollection
 }
 
+export interface ICollectionCommentAddResponse extends IResponse<CommentAddResult> {
+    comment?: ICollectionComment
+}
+
 export enum CollectionResult {
     InvalidId = 2,
     IsPrivate = 3,
@@ -94,4 +98,19 @@ export enum CollectionDeleteResult {
     CollectionNotFound = 2,
     CollectionNotOwned = 3,
     CollectionDeleted = 4
+}
+
+export interface ICollectionDeleteResponse extends IResponse {}
+export interface ICollectionEditImageResponse extends IResponse {
+    url?: string
+}
+export interface ICollectionReportResponse extends IResponse {}
+export interface IFavoriteCollectionAddResponse extends IResponse {}
+export interface IFavoriteCollectionDeleteResponse extends IResponse {}
+export interface IReleaseAddCollectionResponse extends IResponse {}
+
+export interface ICollectionCommentCompact {
+    collection?: ICollectionCompact,
+    embeddable_id?: number,
+    embeddable_title?: string
 }
