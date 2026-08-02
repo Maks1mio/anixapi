@@ -1,5 +1,5 @@
 import { Anixart } from "../../client";
-import { DefaultResult, IBaseApiParams, IChangeEmailVerifyResponse, IChangeLoginInfoResponse, IChangeLoginResponse, IChangePasswordResponse, IGoogleBindResponse, IGoogleUnbindResponse, IPrivacyEditRequest, IProfileSettingsResponse, IProfileSocialResponse, IResponse, ISelectPinnedSectionRequest, ISelectThemeRequest, ISocialEditResponse, ISocialPagesEditRequest, IStatusEditRequest, IVkBindResponse, IVkUnbindResponse } from "../../types";
+import { DefaultResult, IBaseApiParams, IChangeEmailResendResponse, IChangeEmailResponse, IChangeEmailVerifyResponse, IChangeLoginInfoResponse, IChangeLoginResponse, IChangePasswordResponse, IEmailChangeRequest, IEmailChangeResendRequest, IGoogleBindResponse, IGoogleUnbindResponse, IPasswordChangeRequest, IPrivacyEditRequest, IProfileSettingsResponse, IProfileSocialResponse, IResponse, ISelectPinnedSectionRequest, ISelectThemeRequest, ISocialEditResponse, ISocialPagesEditRequest, IStatusEditRequest, ITelegramBindRequest, ITelegramBindResponse, ITelegramUnbindResponse, IVkBindResponse, IVkUnbindResponse } from "../../types";
 
 
 /**
@@ -35,29 +35,29 @@ export class ProfilePreference {
     }
 
     /**
-     * GET profile/preference/email/change
+     * POST profile/preference/email/change
      *
-     * Возможные коды ответа: {@link DefaultResult}
-     * @returns {@link IResponse}
+     * Возможные коды ответа: {@link ChangeEmailResult}
+     * @returns {@link IChangeEmailResponse}
      *
      * @example
-     * const result = await client.endpoints.profilePreference.changeEmail(...);
+     * const result = await client.endpoints.profilePreference.changeEmail({ current_email, current_password, new_email });
      */
-    public async changeEmail(query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IResponse> {
-        return await this.client.call<number, IResponse>({ path: `/profile/preference/email/change`, queryParams: query, apiV2: true, ...options });
+    public async changeEmail(data: IEmailChangeRequest, options?: IBaseApiParams): Promise<IChangeEmailResponse> {
+        return await this.client.call<number, IChangeEmailResponse>({ path: `/profile/preference/email/change`, method: 'POST', urlEncoded: data, apiV2: true, ...options });
     }
 
     /**
-     * GET profile/preference/email/resend
+     * POST profile/preference/email/resend
      *
-     * Возможные коды ответа: {@link DefaultResult}
-     * @returns {@link IResponse}
+     * Возможные коды ответа: {@link ChangeEmailResendResult}
+     * @returns {@link IChangeEmailResendResponse}
      *
      * @example
-     * const result = await client.endpoints.profilePreference.changeEmailResend(...);
+     * const result = await client.endpoints.profilePreference.changeEmailResend({ new_email, current_email, current_password, hash });
      */
-    public async changeEmailResend(query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IResponse> {
-        return await this.client.call<number, IResponse>({ path: `/profile/preference/email/resend`, queryParams: query, ...options });
+    public async changeEmailResend(data: IEmailChangeResendRequest, options?: IBaseApiParams): Promise<IChangeEmailResendResponse> {
+        return await this.client.call<number, IChangeEmailResendResponse>({ path: `/profile/preference/email/resend`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
@@ -100,16 +100,29 @@ export class ProfilePreference {
     }
 
     /**
-     * GET profile/preference/password/change
+     * POST profile/preference/password/change
      *
-     * Возможные коды ответа: {@link DefaultResult}
+     * Возможные коды ответа: {@link ChangePasswordResult}
      * @returns {@link IChangePasswordResponse}
      *
      * @example
-     * const result = await client.endpoints.profilePreference.changePassword(...);
+     * const result = await client.endpoints.profilePreference.changePassword({ current, new: newPassword });
      */
-    public async changePassword(query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IChangePasswordResponse> {
-        return await this.client.call<number, IChangePasswordResponse>({ path: `/profile/preference/password/change`, queryParams: query, ...options });
+    public async changePassword(data: IPasswordChangeRequest, options?: IBaseApiParams): Promise<IChangePasswordResponse> {
+        return await this.client.call<number, IChangePasswordResponse>({ path: `/profile/preference/password/change`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST profile/preference/episode-widget/edit
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IResponse}
+     *
+     * @example
+     * const result = await client.endpoints.profilePreference.episodeWidgetEdit(true);
+     */
+    public async episodeWidgetEdit(hidden: boolean, options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<number, IResponse>({ path: `/profile/preference/episode-widget/edit`, method: 'POST', queryParams: { hidden }, ...options });
     }
 
     /**
@@ -279,6 +292,32 @@ export class ProfilePreference {
      */
     public async statusEdit(body: IStatusEditRequest, options?: IBaseApiParams): Promise<IProfileSettingsResponse> {
         return await this.client.call<number, IProfileSettingsResponse>({ path: `/profile/preference/status/edit`, method: 'POST', json: body, ...options });
+    }
+
+    /**
+     * POST profile/preference/telegram/bind
+     *
+     * Возможные коды ответа: {@link TelegramBindResult}
+     * @returns {@link ITelegramBindResponse}
+     *
+     * @example
+     * const result = await client.endpoints.profilePreference.telegramBind({ idToken });
+     */
+    public async telegramBind(data: ITelegramBindRequest, options?: IBaseApiParams): Promise<ITelegramBindResponse> {
+        return await this.client.call<number, ITelegramBindResponse>({ path: `/profile/preference/telegram/bind`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST profile/preference/telegram/unbind
+     *
+     * Возможные коды ответа: {@link TelegramUnbindResult}
+     * @returns {@link ITelegramUnbindResponse}
+     *
+     * @example
+     * const result = await client.endpoints.profilePreference.telegramUnbind();
+     */
+    public async telegramUnbind(options?: IBaseApiParams): Promise<ITelegramUnbindResponse> {
+        return await this.client.call<number, ITelegramUnbindResponse>({ path: `/profile/preference/telegram/unbind`, method: 'POST', ...options });
     }
 
     /**

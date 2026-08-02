@@ -87,8 +87,55 @@ export interface ISignUpRequest {
 export interface ISignUpVerifyRequest extends ISignUpRequest {
     vkAccessToken?: string;
     googleIdToken?: string;
+    telegramIdToken?: string;
     hash: string;
     code: number;
+}
+
+/** POST auth/checkLogin */
+export interface ICheckLoginRequest {
+    login: string;
+}
+
+export enum CheckLoginResult {
+    InvalidLogin = 2
+}
+
+export interface ICheckLoginResponse extends IResponse<CheckLoginResult> {
+    available: boolean;
+    suggested_logins?: string[] | null;
+}
+
+/** POST auth/telegram (sign-in) */
+export interface IOAuthTelegramSignInRequest {
+    telegramIdToken: string;
+}
+
+/** POST auth/telegram (sign-up) */
+export interface IOAuthTelegramSignUpRequest {
+    login: string;
+    email: string;
+    telegramIdToken: string;
+}
+
+export enum TelegramAuthResult {
+    InvalidRequest = 2,
+    NotRegistered = 3,
+    InvalidLogin = 4,
+    InvalidEmail = 5,
+    LoginAlreadyTaken = 6,
+    EmailAlreadyTaken = 7,
+    CodeAlreadySend = 8,
+    EmailServiceDisallowed = 9,
+    TooManyRegistrations = 10
+}
+
+export interface ITelegramAuthResponse extends IResponse<TelegramAuthResult> {
+    profile?: IProfile;
+    profileToken?: IProfileToken;
+    hash?: string;
+    codeTimestampExpires?: number;
+    suggested_logins?: string[] | null;
 }
 
 export interface ILoginRequest {
@@ -102,6 +149,7 @@ export interface IResendRequest {
     password?: string,
     vkAccessToken?: string,
     googleIdToken?: string,
+    telegramIdToken?: string,
     hash: string
 }
 

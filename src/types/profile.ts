@@ -306,6 +306,8 @@ export enum BlocklistAddResult {
 
 export interface IChangeLogin {
     id: number,
+    newLogin?: string,
+    new_login?: string,
     timestamp: number
 }
 

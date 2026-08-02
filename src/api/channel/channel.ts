@@ -1,5 +1,5 @@
 import { Anixart } from "../../client";
-import { BlogCreateResult, ChannelBlockResult, ChannelCreateEditResult, ChannelResult, DefaultResult, EditorAvaliableResult, IArticle, IArticleMuteResponse, IBaseApiParams, IChannel, IChannelBlockInfoResponse, IChannelBlockManageRequest, IChannelCreateRequest, IChannelMediaTokenResponse, IChannelPermissionManageRequest, IChannelPermissionManageResponse, IChannelPermissionsFilterRequest, IChannelProfile, IChannelResponse, IChannelSubscribeResponse, IChannelUnsubscribeResponse, IChannelUploadCoverAvatarResponse, IChannelsFilterRequest, IPageableResponse, IResponse, ISubscriptionCountResponse } from "../../types";
+import { BlogCreateResult, ChannelBlockResult, ChannelCreateEditResult, ChannelResult, DefaultResult, EditorAvaliableResult, IArticle, IArticleMuteResponse, IBaseApiParams, IChannel, IChannelBlockInfoResponse, IChannelBlockManageRequest, IChannelCreateRequest, IChannelMediaTokenResponse, IChannelPermissionManageRequest, IChannelPermissionManageResponse, IChannelPermissionsFilterRequest, IChannelProfile, IChannelResponse, IChannelSubscribeResponse, IChannelUnsubscribeResponse, IChannelUploadCoverAvatarResponse, IChannelsFilterRequest, IEditorChannelsResponse, IPageableResponse, IResponse, ISubscriptionCountResponse } from "../../types";
 
 
 /**
@@ -188,6 +188,19 @@ export class Channel {
      */
     public async editorAvailable(channelId: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IChannelMediaTokenResponse> {
         return await this.client.call<number, IChannelMediaTokenResponse>({ path: `/channel/${channelId}/editor/available`, queryParams: query, ...options });
+    }
+
+    /**
+     * GET channel/editor/available/all
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IEditorChannelsResponse}
+     *
+     * @example
+     * const result = await client.endpoints.channel.editorAvailableAll(...);
+     */
+    public async editorAvailableAll(options?: IBaseApiParams): Promise<IEditorChannelsResponse> {
+        return await this.client.call<number, IEditorChannelsResponse>({ path: `/channel/editor/available/all`, ...options });
     }
 
     /**

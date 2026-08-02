@@ -75,7 +75,6 @@ export class KodikParser {
     public static async getDirectLinks(url: string, endpointPath: string = this._endpointUrl): Promise<KodikVideoLinks | null> {
         const urlResponse = await (await fetch(url)).text();
 
-        const urlParams = JSON.parse(urlResponse.match(/var\surlParams\s=\s'(?<params>.*?)';/is)?.groups?.params ?? "{}");
         const videoInfoHash = urlResponse.match(/\w+.hash\s=\s'(?<hash>.*?)';/is)?.groups?.hash;
         const videoInfoId = urlResponse.match(/\w+.id\s=\s'(?<id>.*?)';/is)?.groups?.id;
         const videoInfoType = urlResponse.match(/\w+.type\s=\s'(?<type>.*?)';/)?.groups?.type;
@@ -84,10 +83,9 @@ export class KodikParser {
         if (!videoInfoHash || !videoInfoId || !videoInfoType) return null;
 
         const requestBody = {
-            ...urlParams,
             type: videoInfoType,
             hash: videoInfoHash,
-            id: videoInfoId
+            id: videoInfoId,
         }
 
         const directLinksResponse = await fetch(`https://${this._baseKodikDomain}${endpointPath}?${new URLSearchParams(requestBody).toString()}`, {

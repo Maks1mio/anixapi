@@ -1,5 +1,5 @@
 import { Anixart } from "../client";
-import { DefaultResult, IBaseApiParams, IConfigUrlsResponse, IResponse, ITogglesResponse } from "../types";
+import { DefaultResult, IAnixPlayerConfigResponse, IBaseApiParams, IConfigUrlsResponse, ITogglesResponse } from "../types";
 
 
 /**
@@ -7,6 +7,19 @@ import { DefaultResult, IBaseApiParams, IConfigUrlsResponse, IResponse, IToggles
  */
 export class Config {
     public constructor(private readonly client: Anixart) { }
+
+    /**
+     * GET config/anixplayer
+     *
+     * Возможные коды ответа: {@link DefaultResult}
+     * @returns {@link IAnixPlayerConfigResponse}
+     *
+     * @example
+     * const result = await client.endpoints.config.anixplayer(...);
+     */
+    public async anixplayer(query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IAnixPlayerConfigResponse> {
+        return await this.client.call<number, IAnixPlayerConfigResponse>({ path: `/config/anixplayer`, queryParams: query, ...options });
+    }
 
     /**
      * GET config/toggles

@@ -17,6 +17,9 @@ export interface IProfileSettingsResponse extends IResponse {
     isVkBound: boolean,
     is_goolge_bound: boolean,
     isGoogleBound: boolean,
+    is_telegram_bound?: boolean,
+    isTelegramBound?: boolean,
+    episode_channel_widgets_hidden?: boolean,
     is_login_changed: boolean,
     isLoginChanged: boolean,
     is_change_login_banned: boolean,
@@ -34,10 +37,30 @@ export interface IEmailChangeConfirmResponse extends IResponse<ChangeEmailConfir
     emailHint: string
 }
 
+/** POST profile/preference/email/change */
 export interface IEmailChangeRequest {
-    oldEmail: string,
-    newEmail: string,
-    password: string
+    current_email: string,
+    current_password: string,
+    new_email: string
+}
+
+/** POST profile/preference/email/resend */
+export interface IEmailChangeResendRequest {
+    new_email: string,
+    current_email: string,
+    current_password: string,
+    hash: string
+}
+
+/** POST profile/preference/password/change */
+export interface IPasswordChangeRequest {
+    current: string,
+    new: string
+}
+
+/** POST profile/preference/telegram/bind */
+export interface ITelegramBindRequest {
+    idToken: string
 }
 
 export interface ILoginInfoResponse extends IResponse {
@@ -70,9 +93,28 @@ export enum ChangeLoginResult {
 }
 
 export enum ChangeEmailResult {
-    InvalidEmail = 2,
-    InvalidCurrentEmail = 3,
-    EmailAlreadyTaken = 4
+    InvalidPassword = 2,
+    InvalidOldEmail = 3,
+    InvalidEmail = 4,
+    EmailAlreadyTaken = 5,
+    CodeAlreadySend = 6,
+    CodeCannotSend = 7
+}
+
+export enum ChangeEmailResendResult {
+    InvalidPassword = 2,
+    InvalidOldEmail = 3,
+    InvalidHash = 4,
+    CodeCannotSend = 5
+}
+
+export enum TelegramBindResult {
+    InvalidRequest = 2,
+    TelegramAlreadyBound = 3
+}
+
+export enum TelegramUnbindResult {
+    TelegramNotBound = 2
 }
 
 export enum ChangeEmailConfirmResult {
@@ -112,6 +154,13 @@ export interface ISelectPinnedSectionRequest {
     section: number
 }
 
+export interface IChangeEmailResponse extends IResponse<ChangeEmailResult> {
+    hash?: string,
+    timestamp_expires?: number
+}
+export interface IChangeEmailResendResponse extends IResponse<ChangeEmailResendResult> {
+    timestamp_expires?: number
+}
 export interface IChangeEmailVerifyResponse extends IResponse {}
 export interface IChangeLoginInfoResponse extends IResponse {
     last_change_at?: number,
@@ -119,11 +168,13 @@ export interface IChangeLoginInfoResponse extends IResponse {
     is_change_available?: boolean
 }
 export interface IChangeLoginResponse extends IResponse {}
-export interface IChangePasswordResponse extends IResponse {
+export interface IChangePasswordResponse extends IResponse<ChangePasswordResult> {
     token?: string
 }
 export interface IGoogleBindResponse extends IResponse {}
 export interface IGoogleUnbindResponse extends IResponse {}
+export interface ITelegramBindResponse extends IResponse<TelegramBindResult> {}
+export interface ITelegramUnbindResponse extends IResponse<TelegramUnbindResult> {}
 export interface IVkBindResponse extends IResponse {}
 export interface IVkUnbindResponse extends IResponse {}
 export interface ISocialEditResponse extends IResponse {}

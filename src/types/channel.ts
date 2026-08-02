@@ -386,6 +386,28 @@ export interface IChannelCompact {
     title?: string
 }
 
+/** GET channel/editor/available/all */
+export interface IEditorChannel {
+    id: number,
+    title: string,
+    avatar?: string | null,
+    subscriber_count: number,
+    is_blog: boolean
+}
+
+export interface IEditorChannelsResponse extends IResponse {
+    channels: IEditorChannel[]
+}
+
+/** GET type/{typeId}/channel */
+export interface ITypeChannelResponse extends IResponse {
+    channel?: IChannel | null,
+    articles: IArticle[],
+    is_hidden_by_user: boolean,
+    are_widgets_hidden_globally: boolean,
+    is_widget_eligible: boolean
+}
+
 export interface IArticleCommentCompact {
     article?: IArticle,
     embeddable_description?: string,

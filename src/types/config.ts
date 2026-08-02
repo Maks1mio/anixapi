@@ -1,6 +1,6 @@
 import { IResponse } from "./response";
 
-export const DEFAULT_VERSION_CODE = 25082901;
+export const DEFAULT_VERSION_CODE = 26073118;
 
 export interface IConfigRequest {
     versionCode?: number,
@@ -43,4 +43,11 @@ export interface ITogglesResponse extends IResponse {
 
 export interface ILatestArticleResponse extends IResponse {
     article_id?: number | null
+}
+
+/** GET config/anixplayer */
+export interface IAnixPlayerConfigResponse extends IResponse {
+    last_version_code: number,
+    whats_new: string,
+    download_links: Record<string, string>
 }
