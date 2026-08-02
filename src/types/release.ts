@@ -290,7 +290,8 @@ export interface IDubber {
     is_sub: boolean,
     episode_count: number,
     view_count: number,
-    pinned: boolean
+    pinned: boolean,
+    quality?: number,
 }
 
 export interface IDubbersResponse extends IResponse {
@@ -303,6 +304,7 @@ export interface ISource {
     name: string,
     type: IDubber | number,
     episode_count: number,
+    quality?: number,
 }
 
 export interface ISourcesResponse extends IResponse {

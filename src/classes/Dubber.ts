@@ -13,6 +13,7 @@ export class Dubber {
     public readonly pinned: boolean;
     public readonly viewCount: number;
     public readonly workers: string;
+    public readonly quality: number | null;
 
     constructor(private readonly client: Anixart, dubberResponce: IDubber, public readonly release: Release) {
         this.localId = dubberResponce["@id"];
@@ -24,6 +25,7 @@ export class Dubber {
         this.pinned = dubberResponce.pinned,
         this.viewCount = dubberResponce.view_count
         this.workers = dubberResponce.workers
+        this.quality = typeof dubberResponce.quality === 'number' ? dubberResponce.quality : null;
     }
 
     public async getSources(): Promise<Source[]> {
