@@ -19,6 +19,8 @@ export interface IProfileSettingsResponse extends IResponse {
     isGoogleBound: boolean,
     is_telegram_bound?: boolean,
     isTelegramBound?: boolean,
+    is_yandex_bound?: boolean,
+    isYandexBound?: boolean,
     episode_channel_widgets_hidden?: boolean,
     is_login_changed: boolean,
     isLoginChanged: boolean,
@@ -62,6 +64,21 @@ export interface IPasswordChangeRequest {
 export interface ITelegramBindRequest {
     idToken: string
 }
+
+/** POST profile/preference/google/bind */
+export interface IGoogleBindRequest {
+    idToken: string
+}
+
+/** POST profile/preference/vk/bind | yandex/bind */
+export interface IAccessTokenBindRequest {
+    accessToken: string
+}
+
+/** @alias IAccessTokenBindRequest */
+export type IVkBindRequest = IAccessTokenBindRequest;
+/** @alias IAccessTokenBindRequest */
+export type IYandexBindRequest = IAccessTokenBindRequest;
 
 export interface ILoginInfoResponse extends IResponse {
     login: string,
@@ -115,6 +132,33 @@ export enum TelegramBindResult {
 
 export enum TelegramUnbindResult {
     TelegramNotBound = 2
+}
+
+export enum GoogleBindResult {
+    InvalidRequest = 2,
+    GoogleAlreadyBound = 3
+}
+
+export enum GoogleUnbindResult {
+    GoogleNotBound = 2
+}
+
+export enum VkBindResult {
+    InvalidRequest = 2,
+    VkAlreadyBound = 3
+}
+
+export enum VkUnbindResult {
+    VkNotBound = 2
+}
+
+export enum YandexBindResult {
+    InvalidRequest = 2,
+    YandexAlreadyBound = 3
+}
+
+export enum YandexUnbindResult {
+    YandexNotBound = 2
 }
 
 export enum ChangeEmailConfirmResult {
@@ -171,11 +215,13 @@ export interface IChangeLoginResponse extends IResponse {}
 export interface IChangePasswordResponse extends IResponse<ChangePasswordResult> {
     token?: string
 }
-export interface IGoogleBindResponse extends IResponse {}
-export interface IGoogleUnbindResponse extends IResponse {}
+export interface IGoogleBindResponse extends IResponse<GoogleBindResult> {}
+export interface IGoogleUnbindResponse extends IResponse<GoogleUnbindResult> {}
 export interface ITelegramBindResponse extends IResponse<TelegramBindResult> {}
 export interface ITelegramUnbindResponse extends IResponse<TelegramUnbindResult> {}
-export interface IVkBindResponse extends IResponse {}
-export interface IVkUnbindResponse extends IResponse {}
+export interface IVkBindResponse extends IResponse<VkBindResult> {}
+export interface IVkUnbindResponse extends IResponse<VkUnbindResult> {}
+export interface IYandexBindResponse extends IResponse<YandexBindResult> {}
+export interface IYandexUnbindResponse extends IResponse<YandexUnbindResult> {}
 export interface ISocialEditResponse extends IResponse {}
 export interface IProfileSelectPinnedSectionResponse extends IResponse {}

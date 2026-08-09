@@ -108,13 +108,29 @@ const client = new Anixart({ token: "existing-token" });
 ### OAuth и регистрация
 
 ```typescript
-// Вход через VK
-await client.endpoints.auth.signInWithVk({ vkAccessToken: "..." });
+import { OAuthAuthResult, GoogleAuthResult } from "anixapi";
 
-// Регистрация
+// Вход через VK / Google / Telegram / Yandex
+const vk = await client.endpoints.auth.signInWithVk({ vkAccessToken: "..." });
+const google = await client.endpoints.auth.signInWithGoogle({ googleIdToken: "..." });
+const tg = await client.endpoints.auth.signInWithTelegram({ telegramIdToken: "..." });
+const ya = await client.endpoints.auth.signInWithYandex({ yandexAccessToken: "..." });
+
+// code === OAuthAuthResult.NotRegistered (3) → нужно signUpWith*
+if (ya.code === OAuthAuthResult.NotRegistered) {
+  await client.endpoints.auth.signUpWithYandex({
+    login: "newuser",
+    email: ya.email ?? "user@example.com",
+    yandexAccessToken: "...",
+  });
+}
+
+// Регистрация по email
 await client.endpoints.auth.signUp({ login, email, password });
 await client.endpoints.auth.verify({ login, email, password, code, hash });
 ```
+
+Флаги доступности провайдеров: `GET config/urls` → `vk_auth_available`, `google_auth_available`, `telegram_auth_available`, `yandex_auth_available`.
 
 Полный список методов: `client.endpoints.auth.*`
 

@@ -1,5 +1,5 @@
 import { Anixart } from "../client";
-import { DefaultResult, IBaseApiParams, ICheckLoginRequest, ICheckLoginResponse, ILoginRequest, ILoginResponse, IOAuthGoogleSignInRequest, IOAuthGoogleSignUpRequest, IOAuthTelegramSignInRequest, IOAuthTelegramSignUpRequest, IOAuthVkSignInRequest, IOAuthVkSignUpRequest, IRegisterResponse, IResendRequest, IResponse, IRestoreEmailRequest, IRestoreResendRequest, IRestoreVerifyRequest, ISignUpRequest, ISignUpVerifyRequest, ITelegramAuthResponse, LoginResult, RegisterResult, RegisterVerifyResult, RestorePasswordResult, RestorePasswordVerifyResult } from "../types";
+import { DefaultResult, IBaseApiParams, ICheckLoginRequest, ICheckLoginResponse, IGoogleAuthResponse, ILoginRequest, ILoginResponse, IOAuthGoogleSignInRequest, IOAuthGoogleSignUpRequest, IOAuthTelegramSignInRequest, IOAuthTelegramSignUpRequest, IOAuthVkSignInRequest, IOAuthVkSignUpRequest, IOAuthYandexSignInRequest, IOAuthYandexSignUpRequest, IRegisterResponse, IResendRequest, IResponse, IRestoreEmailRequest, IRestoreResendRequest, IRestoreVerifyRequest, ISignUpRequest, ISignUpVerifyRequest, ITelegramAuthResponse, IVkAuthResponse, IYandexAuthResponse, LoginResult, RegisterResult, RegisterVerifyResult, RestorePasswordResult, RestorePasswordVerifyResult } from "../types";
 
 
 /**
@@ -102,14 +102,14 @@ export class Auth {
     /**
      * POST auth/google
      *
-     * Возможные коды ответа: {@link LoginResult}
-     * @returns {@link ILoginResponse}
+     * Возможные коды ответа: {@link GoogleAuthResult}
+     * @returns {@link IGoogleAuthResponse}
      *
      * @example
      * const result = await client.endpoints.auth.signInWithGoogle(...);
      */
-    public async signInWithGoogle(data: IOAuthGoogleSignInRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
-        return await this.client.call<number, ILoginResponse>({ path: `/auth/google`, method: 'POST', urlEncoded: data, ...options });
+    public async signInWithGoogle(data: IOAuthGoogleSignInRequest, options?: IBaseApiParams): Promise<IGoogleAuthResponse> {
+        return await this.client.call<number, IGoogleAuthResponse>({ path: `/auth/google`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
@@ -128,14 +128,27 @@ export class Auth {
     /**
      * POST auth/vk
      *
-     * Возможные коды ответа: {@link LoginResult}
-     * @returns {@link ILoginResponse}
+     * Возможные коды ответа: {@link OAuthAuthResult}
+     * @returns {@link IVkAuthResponse}
      *
      * @example
      * const result = await client.endpoints.auth.signInWithVk(...);
      */
-    public async signInWithVk(data: IOAuthVkSignInRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
-        return await this.client.call<number, ILoginResponse>({ path: `/auth/vk`, method: 'POST', urlEncoded: data, ...options });
+    public async signInWithVk(data: IOAuthVkSignInRequest, options?: IBaseApiParams): Promise<IVkAuthResponse> {
+        return await this.client.call<number, IVkAuthResponse>({ path: `/auth/vk`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST auth/yandex (с beta 21)
+     *
+     * Возможные коды ответа: {@link OAuthAuthResult}
+     * @returns {@link IYandexAuthResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.signInWithYandex({ yandexAccessToken });
+     */
+    public async signInWithYandex(data: IOAuthYandexSignInRequest, options?: IBaseApiParams): Promise<IYandexAuthResponse> {
+        return await this.client.call<number, IYandexAuthResponse>({ path: `/auth/yandex`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
@@ -154,14 +167,14 @@ export class Auth {
     /**
      * POST auth/google
      *
-     * Возможные коды ответа: {@link LoginResult}
-     * @returns {@link ILoginResponse}
+     * Возможные коды ответа: {@link GoogleAuthResult}
+     * @returns {@link IGoogleAuthResponse}
      *
      * @example
      * const result = await client.endpoints.auth.signUpWithGoogle(...);
      */
-    public async signUpWithGoogle(data: IOAuthGoogleSignUpRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
-        return await this.client.call<number, ILoginResponse>({ path: `/auth/google`, method: 'POST', urlEncoded: data, ...options });
+    public async signUpWithGoogle(data: IOAuthGoogleSignUpRequest, options?: IBaseApiParams): Promise<IGoogleAuthResponse> {
+        return await this.client.call<number, IGoogleAuthResponse>({ path: `/auth/google`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
@@ -180,14 +193,27 @@ export class Auth {
     /**
      * POST auth/vk
      *
-     * Возможные коды ответа: {@link LoginResult}
-     * @returns {@link ILoginResponse}
+     * Возможные коды ответа: {@link OAuthAuthResult}
+     * @returns {@link IVkAuthResponse}
      *
      * @example
      * const result = await client.endpoints.auth.signUpWithVk(...);
      */
-    public async signUpWithVk(data: IOAuthVkSignUpRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
-        return await this.client.call<number, ILoginResponse>({ path: `/auth/vk`, method: 'POST', urlEncoded: data, ...options });
+    public async signUpWithVk(data: IOAuthVkSignUpRequest, options?: IBaseApiParams): Promise<IVkAuthResponse> {
+        return await this.client.call<number, IVkAuthResponse>({ path: `/auth/vk`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST auth/yandex (с beta 21)
+     *
+     * Возможные коды ответа: {@link OAuthAuthResult}
+     * @returns {@link IYandexAuthResponse}
+     *
+     * @example
+     * const result = await client.endpoints.auth.signUpWithYandex({ login, email, yandexAccessToken });
+     */
+    public async signUpWithYandex(data: IOAuthYandexSignUpRequest, options?: IBaseApiParams): Promise<IYandexAuthResponse> {
+        return await this.client.call<number, IYandexAuthResponse>({ path: `/auth/yandex`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**

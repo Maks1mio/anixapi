@@ -88,6 +88,7 @@ export interface ISignUpVerifyRequest extends ISignUpRequest {
     vkAccessToken?: string;
     googleIdToken?: string;
     telegramIdToken?: string;
+    yandexAccessToken?: string;
     hash: string;
     code: number;
 }
@@ -118,6 +119,32 @@ export interface IOAuthTelegramSignUpRequest {
     telegramIdToken: string;
 }
 
+/** POST auth/yandex (sign-in) */
+export interface IOAuthYandexSignInRequest {
+    yandexAccessToken: string;
+}
+
+/** POST auth/yandex (sign-up) */
+export interface IOAuthYandexSignUpRequest {
+    login: string;
+    email: string;
+    yandexAccessToken: string;
+}
+
+/** Общие коды OAuth: VK / Telegram / Yandex (beta 21) */
+export enum OAuthAuthResult {
+    InvalidRequest = 2,
+    NotRegistered = 3,
+    InvalidLogin = 4,
+    InvalidEmail = 5,
+    LoginAlreadyTaken = 6,
+    EmailAlreadyTaken = 7,
+    CodeAlreadySend = 8,
+    EmailServiceDisallowed = 9,
+    TooManyRegistrations = 10
+}
+
+/** @deprecated используйте {@link OAuthAuthResult} */
 export enum TelegramAuthResult {
     InvalidRequest = 2,
     NotRegistered = 3,
@@ -130,12 +157,41 @@ export enum TelegramAuthResult {
     TooManyRegistrations = 10
 }
 
-export interface ITelegramAuthResponse extends IResponse<TelegramAuthResult> {
+/** Коды Google OAuth (отличаются от VK/TG/Yandex) */
+export enum GoogleAuthResult {
+    InvalidRequest = 2,
+    NotRegistered = 3,
+    InvalidLogin = 4,
+    InvalidEmail = 5,
+    LoginAlreadyTaken = 6,
+    EmailAlreadyTaken = 7,
+    EmailChanged = 8,
+    EmailChangedAndCodeAlreadySend = 9,
+    EmailServiceDisallowed = 10,
+    TooManyRegistrations = 11
+}
+
+export type VkAuthResult = OAuthAuthResult;
+export type YandexAuthResult = OAuthAuthResult;
+
+/** Базовый ответ OAuth sign-in / sign-up */
+export interface IOAuthAuthResponse<T extends number = OAuthAuthResult> extends IResponse<T> {
     profile?: IProfile;
     profileToken?: IProfileToken;
     hash?: string;
     codeTimestampExpires?: number;
     suggested_logins?: string[] | null;
+}
+
+export interface ITelegramAuthResponse extends IOAuthAuthResponse<TelegramAuthResult> {}
+
+export interface IVkAuthResponse extends IOAuthAuthResponse<OAuthAuthResult> {}
+
+export interface IGoogleAuthResponse extends IOAuthAuthResponse<GoogleAuthResult> {}
+
+/** Yandex дополнительно отдаёт email при регистрации */
+export interface IYandexAuthResponse extends IOAuthAuthResponse<OAuthAuthResult> {
+    email?: string | null;
 }
 
 export interface ILoginRequest {
@@ -150,6 +206,7 @@ export interface IResendRequest {
     vkAccessToken?: string,
     googleIdToken?: string,
     telegramIdToken?: string,
+    yandexAccessToken?: string,
     hash: string
 }
 

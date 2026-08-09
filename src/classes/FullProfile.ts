@@ -31,6 +31,8 @@ export class FullProfile extends BaseProfile {
     public readonly isBookmarksTransferred: boolean;
     public readonly isVkBound: boolean;
     public readonly isGoogleBound: boolean;
+    public readonly isTelegramBound: boolean;
+    public readonly isYandexBound: boolean;
     public readonly isReleaseTypeNotificationsEnabled: boolean;
     public readonly isEpisodeNotificationsEnabled: boolean;
     public readonly isFirstEpisodeNotificationEnabled: boolean;
@@ -114,6 +116,8 @@ export class FullProfile extends BaseProfile {
         this.isBookmarksTransferred = profile.is_bookmarks_transferred;
         this.isVkBound = profile.is_vk_bound;
         this.isGoogleBound = profile.is_google_bound;
+        this.isTelegramBound = profile.is_telegram_bound ?? false;
+        this.isYandexBound = profile.is_yandex_bound ?? false;
         this.isReleaseTypeNotificationsEnabled = profile.is_release_type_notifications_enabled;
         this.isEpisodeNotificationsEnabled = profile.is_episode_notifications_enabled;
         this.isFirstEpisodeNotificationEnabled = profile.is_first_episode_notification_enabled;

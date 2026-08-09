@@ -1,6 +1,6 @@
 {
   "name": "anixapi",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Unofficial Anixart API wrapper for Node.js (TypeScript)",
   "type": "commonjs",
   "main": "dist/index.js",

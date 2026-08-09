@@ -86,6 +86,8 @@ export interface IProfile {
     is_sponsor_transferred: boolean
     is_vk_bound: boolean
     is_google_bound: boolean
+    is_telegram_bound?: boolean
+    is_yandex_bound?: boolean
     is_article_notifications_enabled: boolean
     is_release_type_notifications_enabled: boolean
     is_episode_notifications_enabled: boolean

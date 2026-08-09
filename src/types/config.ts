@@ -1,6 +1,7 @@
 import { IResponse } from "./response";
 
-export const DEFAULT_VERSION_CODE = 26073118;
+/** Anixart 9.0 BETA 21 */
+export const DEFAULT_VERSION_CODE = 26080522;
 
 export interface IConfigRequest {
     versionCode?: number,
@@ -12,7 +13,12 @@ export interface IConfigUrlsResponse extends IResponse {
     api_urls: string[],
     editor_url?: string,
     static_domain?: string,
-    should_use_mirror_urls: boolean
+    should_use_mirror_urls: boolean,
+    google_auth_available?: boolean,
+    telegram_auth_available?: boolean,
+    vk_auth_available?: boolean,
+    yandex_auth_available?: boolean,
+    consent_required?: boolean
 }
 
 export interface ITogglesResponse extends IResponse {
@@ -38,6 +44,8 @@ export interface ITogglesResponse extends IResponse {
     googleAuthAvailable?: boolean,
     vkAuthAvailable?: boolean,
     telegramAuthAvailable?: boolean,
+    yandexAuthAvailable?: boolean,
+    consentRequired?: boolean,
     [key: string]: unknown
 }
 

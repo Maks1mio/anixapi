@@ -1,5 +1,5 @@
 import { Anixart } from "../../client";
-import { DefaultResult, IBaseApiParams, IChangeEmailResendResponse, IChangeEmailResponse, IChangeEmailVerifyResponse, IChangeLoginInfoResponse, IChangeLoginResponse, IChangePasswordResponse, IEmailChangeRequest, IEmailChangeResendRequest, IGoogleBindResponse, IGoogleUnbindResponse, IPasswordChangeRequest, IPrivacyEditRequest, IProfileSettingsResponse, IProfileSocialResponse, IResponse, ISelectPinnedSectionRequest, ISelectThemeRequest, ISocialEditResponse, ISocialPagesEditRequest, IStatusEditRequest, ITelegramBindRequest, ITelegramBindResponse, ITelegramUnbindResponse, IVkBindResponse, IVkUnbindResponse } from "../../types";
+import { DefaultResult, IBaseApiParams, IChangeEmailResendResponse, IChangeEmailResponse, IChangeEmailVerifyResponse, IChangeLoginInfoResponse, IChangeLoginResponse, IChangePasswordResponse, IEmailChangeRequest, IEmailChangeResendRequest, IGoogleBindRequest, IGoogleBindResponse, IGoogleUnbindResponse, IPasswordChangeRequest, IPrivacyEditRequest, IProfileSettingsResponse, IProfileSocialResponse, IResponse, ISelectPinnedSectionRequest, ISelectThemeRequest, ISocialEditResponse, ISocialPagesEditRequest, IStatusEditRequest, ITelegramBindRequest, ITelegramBindResponse, ITelegramUnbindResponse, IVkBindRequest, IVkBindResponse, IVkUnbindResponse, IYandexBindRequest, IYandexBindResponse, IYandexUnbindResponse } from "../../types";
 
 
 /**
@@ -128,24 +128,24 @@ export class ProfilePreference {
     /**
      * POST profile/preference/google/bind
      *
-     * Возможные коды ответа: {@link DefaultResult}
+     * Возможные коды ответа: {@link GoogleBindResult}
      * @returns {@link IGoogleBindResponse}
      *
      * @example
-     * const result = await client.endpoints.profilePreference.googleBind(...);
+     * const result = await client.endpoints.profilePreference.googleBind({ idToken });
      */
-    public async googleBind(data?: Record<string, string | number | undefined>, options?: IBaseApiParams): Promise<IGoogleBindResponse> {
+    public async googleBind(data: IGoogleBindRequest, options?: IBaseApiParams): Promise<IGoogleBindResponse> {
         return await this.client.call<number, IGoogleBindResponse>({ path: `/profile/preference/google/bind`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
      * POST profile/preference/google/unbind
      *
-     * Возможные коды ответа: {@link DefaultResult}
+     * Возможные коды ответа: {@link GoogleUnbindResult}
      * @returns {@link IGoogleUnbindResponse}
      *
      * @example
-     * const result = await client.endpoints.profilePreference.googleUnbind(...);
+     * const result = await client.endpoints.profilePreference.googleUnbind();
      */
     public async googleUnbind(options?: IBaseApiParams): Promise<IGoogleUnbindResponse> {
         return await this.client.call<number, IGoogleUnbindResponse>({ path: `/profile/preference/google/unbind`, method: 'POST', ...options });
@@ -323,26 +323,52 @@ export class ProfilePreference {
     /**
      * POST profile/preference/vk/bind
      *
-     * Возможные коды ответа: {@link DefaultResult}
+     * Возможные коды ответа: {@link VkBindResult}
      * @returns {@link IVkBindResponse}
      *
      * @example
-     * const result = await client.endpoints.profilePreference.vkBind(...);
+     * const result = await client.endpoints.profilePreference.vkBind({ accessToken });
      */
-    public async vkBind(data?: Record<string, string | number | undefined>, options?: IBaseApiParams): Promise<IVkBindResponse> {
+    public async vkBind(data: IVkBindRequest, options?: IBaseApiParams): Promise<IVkBindResponse> {
         return await this.client.call<number, IVkBindResponse>({ path: `/profile/preference/vk/bind`, method: 'POST', urlEncoded: data, ...options });
     }
 
     /**
      * POST profile/preference/vk/unbind
      *
-     * Возможные коды ответа: {@link DefaultResult}
+     * Возможные коды ответа: {@link VkUnbindResult}
      * @returns {@link IVkUnbindResponse}
      *
      * @example
-     * const result = await client.endpoints.profilePreference.vkUnbind(...);
+     * const result = await client.endpoints.profilePreference.vkUnbind();
      */
     public async vkUnbind(options?: IBaseApiParams): Promise<IVkUnbindResponse> {
         return await this.client.call<number, IVkUnbindResponse>({ path: `/profile/preference/vk/unbind`, method: 'POST', ...options });
+    }
+
+    /**
+     * POST profile/preference/yandex/bind (с beta 21)
+     *
+     * Возможные коды ответа: {@link YandexBindResult}
+     * @returns {@link IYandexBindResponse}
+     *
+     * @example
+     * const result = await client.endpoints.profilePreference.yandexBind({ accessToken });
+     */
+    public async yandexBind(data: IYandexBindRequest, options?: IBaseApiParams): Promise<IYandexBindResponse> {
+        return await this.client.call<number, IYandexBindResponse>({ path: `/profile/preference/yandex/bind`, method: 'POST', urlEncoded: data, ...options });
+    }
+
+    /**
+     * POST profile/preference/yandex/unbind (с beta 21)
+     *
+     * Возможные коды ответа: {@link YandexUnbindResult}
+     * @returns {@link IYandexUnbindResponse}
+     *
+     * @example
+     * const result = await client.endpoints.profilePreference.yandexUnbind();
+     */
+    public async yandexUnbind(options?: IBaseApiParams): Promise<IYandexUnbindResponse> {
+        return await this.client.call<number, IYandexUnbindResponse>({ path: `/profile/preference/yandex/unbind`, method: 'POST', ...options });
     }
 }
