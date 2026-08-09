@@ -1,5 +1,5 @@
 import { Anixart } from "../../client";
-import { DefaultResult, IBaseApiParams, IChangeEmailResendResponse, IChangeEmailResponse, IChangeEmailVerifyResponse, IChangeLoginInfoResponse, IChangeLoginResponse, IChangePasswordResponse, IEmailChangeRequest, IEmailChangeResendRequest, IGoogleBindRequest, IGoogleBindResponse, IGoogleUnbindResponse, IPasswordChangeRequest, IPrivacyEditRequest, IProfileSettingsResponse, IProfileSocialResponse, IResponse, ISelectPinnedSectionRequest, ISelectThemeRequest, ISocialEditResponse, ISocialPagesEditRequest, IStatusEditRequest, ITelegramBindRequest, ITelegramBindResponse, ITelegramUnbindResponse, IVkBindRequest, IVkBindResponse, IVkUnbindResponse, IYandexBindRequest, IYandexBindResponse, IYandexUnbindResponse } from "../../types";
+import { DefaultResult, IBaseApiParams, IChangeEmailResendResponse, IChangeEmailResponse, IChangeEmailVerifyResponse, IChangeLoginInfoResponse, IChangeLoginResponse, IChangePasswordResponse, IEmailChangeRequest, IEmailChangeResendRequest, IGoogleBindRequest, IGoogleBindResponse, IGoogleUnbindResponse, IPasswordChangeRequest, IPrivacyEditRequest, IProfileSettingsResponse, IProfileSocialResponse, IResponse, ISelectPinnedSectionRequest, ISelectThemeRequest, ISelectThemeResponse, ISocialEditResponse, ISocialPagesEditRequest, IStatusEditRequest, ITelegramBindRequest, ITelegramBindResponse, ITelegramUnbindResponse, IVkBindRequest, IVkBindResponse, IVkUnbindResponse, IYandexBindRequest, IYandexBindResponse, IYandexUnbindResponse } from "../../types";
 
 
 /**
@@ -251,8 +251,14 @@ export class ProfilePreference {
      * @example
      * const result = await client.endpoints.profilePreference.selectTheme(...);
      */
-    public async selectTheme(body: ISelectThemeRequest, options?: IBaseApiParams): Promise<IResponse> {
-        return await this.client.call<number, IResponse>({ path: `/profile/preference/themes/edit`, method: 'POST', json: body, ...options });
+    public async selectTheme(body: ISelectThemeRequest, options?: IBaseApiParams): Promise<ISelectThemeResponse> {
+        const id = body.id ?? body.theme;
+        return await this.client.call<number, ISelectThemeResponse>({
+            path: `/profile/preference/themes/edit`,
+            method: 'POST',
+            json: { id },
+            ...options,
+        });
     }
 
     /**

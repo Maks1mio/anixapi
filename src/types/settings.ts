@@ -1,4 +1,4 @@
-import { IBadge, IProfile } from "./profile";
+import { IBadge, IProfile, ITheme } from "./profile";
 import { IPageableResponse, IResponse } from "./response";
 
 
@@ -28,7 +28,11 @@ export interface IProfileSettingsResponse extends IResponse {
     ban_change_login_expires: number,
     is_change_avatar_banned: boolean,
     ban_change_avatar_expires: number,
-    channel_id: number
+    channel_id: number,
+    /** Темы витрины (из preference/my) */
+    available_themes?: { id: number; name: string }[],
+    selected_theme_id?: number,
+    badge?: IBadge | null,
 }
 
 export interface IBadgesResponse extends IPageableResponse<IBadge> {
@@ -191,7 +195,15 @@ export interface IPasswordChangeResponse extends IResponse<ChangePasswordResult>
 }
 
 export interface ISelectThemeRequest {
-    theme: number
+    /** APK SelectThemeRequest: поле `id` */
+    id: number
+    /** @deprecated используйте `id` */
+    theme?: number
+}
+
+/** Ответ POST profile/preference/themes/edit */
+export interface ISelectThemeResponse extends IResponse {
+    theme?: ITheme | null
 }
 
 export interface ISelectPinnedSectionRequest {

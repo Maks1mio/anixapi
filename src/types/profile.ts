@@ -353,6 +353,7 @@ export interface IRoleDto {
 }
 
 export interface ITheme {
+    id?: number,
     name?: string,
     theme_animation_enabled?: boolean,
     theme_animation_speed?: string | null,
@@ -373,6 +374,7 @@ export interface ITheme {
 
 export interface IAvailableTheme {
     id: number
+    name?: string
 }
 
 export interface IUser {
