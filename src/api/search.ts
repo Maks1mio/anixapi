@@ -163,4 +163,64 @@ export class Search {
     public async releaseSearch(page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
         return await this.client.call<number, IPageableResponse<IRelease>>({ path: `/search/releases/${page}`, method: 'POST', json: body, apiV2: true, ...options });
     }
+
+    /** @alias {@link Search.articleSearch} */
+    public async articles(page: number, body: IArticleSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IArticle>> {
+        return this.articleSearch(page, body, options);
+    }
+
+    /** @alias {@link Search.channelSearch} */
+    public async channels(page: number, body: IChannelSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IChannel>> {
+        return this.channelSearch(page, body, options);
+    }
+
+    /** @alias {@link Search.channelSubscribersSearch} */
+    public async channelSubscribers(channelId: number, page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IChannelProfile>> {
+        return this.channelSubscribersSearch(channelId, page, body, options);
+    }
+
+    /** @alias {@link Search.collectionSearch} */
+    public async collections(page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<ICollection>> {
+        return this.collectionSearch(page, body, options);
+    }
+
+    /** @alias {@link Search.favoriteCollectionsSearch} */
+    public async favoriteCollections(page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<ICollection>> {
+        return this.favoriteCollectionsSearch(page, body, options);
+    }
+
+    /** @alias {@link Search.favoritesSearch} */
+    public async favorites(page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return this.favoritesSearch(page, body, options);
+    }
+
+    /** @alias {@link Search.feedSearch} */
+    public async feed(page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IFeedSearchResponse> {
+        return this.feedSearch(page, body, options);
+    }
+
+    /** @alias {@link Search.historySearch} */
+    public async history(page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return this.historySearch(page, body, options);
+    }
+
+    /** @alias {@link Search.profileCollectionSearch} */
+    public async profileCollections(profileId: number, page: number, body: IBaseSearchRequest, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<ICollection>> {
+        return this.profileCollectionSearch(profileId, page, body, query, options);
+    }
+
+    /** @alias {@link Search.profileListSearch} */
+    public async profileList(status: number, page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return this.profileListSearch(status, page, body, options);
+    }
+
+    /** @alias {@link Search.profileSearch} */
+    public async profiles(page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IProfile>> {
+        return this.profileSearch(page, body, options);
+    }
+
+    /** @alias {@link Search.releaseSearch} */
+    public async releases(page: number, body: IBaseSearchRequest, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return this.releaseSearch(page, body, options);
+    }
 }

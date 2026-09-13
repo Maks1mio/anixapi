@@ -60,6 +60,11 @@ export class Profile {
         return await this.client.call<number, IProfileResponse>({ path: `/profile/${id}`, ...options });
     }
 
+    /** @alias {@link Profile.byId} */
+    public async get(id: number, options?: IBaseApiParams): Promise<IProfileResponse> {
+        return this.byId(id, options);
+    }
+
     /**
      * GET profile/{id}
      *

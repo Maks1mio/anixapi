@@ -59,4 +59,14 @@ export class ProfileList {
     public async profileListByProfile(profileId: number, status: number, page: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
         return await this.client.call<number, IPageableResponse<IRelease>>({ path: `/profile/list/all/${profileId}/${status}/${page}`, queryParams: query, ...options });
     }
+
+    /** @alias {@link ProfileList.profileList} */
+    public async get(status: number, page: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return this.profileList(status, page, query, options);
+    }
+
+    /** @alias {@link ProfileList.profileListByProfile} */
+    public async getByProfile(profileId: number, status: number, page: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return this.profileListByProfile(profileId, status, page, query, options);
+    }
 }

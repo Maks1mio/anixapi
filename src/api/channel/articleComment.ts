@@ -60,6 +60,11 @@ export class ArticleComment {
         return await this.client.call<number, IPageableResponse<IArticleComment>>({ path: `/article/comment/all/${articleId}/popular`, ...options });
     }
 
+    /** @alias {@link ArticleComment.commentsPopular} */
+    public async popular(articleId: number, options?: IBaseApiParams): Promise<IPageableResponse<IArticleComment>> {
+        return this.commentsPopular(articleId, options);
+    }
+
     /**
      * GET article/comment/delete/{commentId}
      *

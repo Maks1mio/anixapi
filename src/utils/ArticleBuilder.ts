@@ -47,6 +47,10 @@ export class ArticleBuilder {
     }
 
     returnBuildAricle(): IArticleCreateRequest {
+        return this.build();
+    }
+
+    public build(): IArticleCreateRequest {
         return {
             is_signed: this.isSigned,
             repost_article_id: this.repostArticleId,

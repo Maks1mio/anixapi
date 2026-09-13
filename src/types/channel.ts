@@ -130,6 +130,8 @@ export interface IArticleCreateRequest {
 
 export interface IArticleSuggestionCreateRequest extends Omit<IArticleCreateRequest, 'repost_article_id'>{}
 
+export type EmbedType = "youtube" | "vk" | "link";
+
 export interface IEmbedData extends IResponse {
     success: number,
     hash: string,
@@ -142,6 +144,9 @@ export interface IEmbedData extends IResponse {
     height: number,
     url: string
 }
+
+/** @alias {@link IEmbedData} */
+export type IArticleEmbedResponse = IEmbedData;
 
 export interface IArticleResponse<T extends number = ArticleResult> extends IResponse<T> {
     article: IArticle

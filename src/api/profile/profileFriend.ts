@@ -57,7 +57,7 @@ export class ProfileFriend {
      * const result = await client.endpoints.profileFriend.requestRemove(1, ...);
      */
     public async requestRemove(id2: number, options?: IBaseApiParams): Promise<IFriendRequestResponse> {
-        return await this.client.call<number, IFriendRequestResponse>({ path: `/profile/friend/request/remove/${id2}`, ...options });
+        return await this.client.call<number, IFriendRequestResponse>({ path: `/profile/friend/request/remove/${id2}`, resultEnum: RemoveFriendRequestResult, successCodes: [0, 2, 3], ...options });
     }
 
     /**
@@ -70,7 +70,7 @@ export class ProfileFriend {
      * const result = await client.endpoints.profileFriend.requestSend(1, ...);
      */
     public async requestSend(id2: number, options?: IBaseApiParams): Promise<IFriendRequestResponse> {
-        return await this.client.call<number, IFriendRequestResponse>({ path: `/profile/friend/request/send/${id2}`, ...options });
+        return await this.client.call<number, IFriendRequestResponse>({ path: `/profile/friend/request/send/${id2}`, resultEnum: SendFriendRequestResult, successCodes: [0, 2, 3], ...options });
     }
 
     /**
@@ -123,5 +123,33 @@ export class ProfileFriend {
      */
     public async requestsOutLast(query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IProfile>> {
         return await this.client.call<number, IPageableResponse<IProfile>>({ path: `/profile/friend/requests/out/last`, queryParams: query, ...options });
+    }
+
+    /** @alias {@link ProfileFriend.friends} */
+    public async get(id: number, page: number, options?: IBaseApiParams): Promise<IPageableResponse<IProfileShort>> {
+        return this.friends(id, page, options);
+    }
+
+    /** @alias {@link ProfileFriend.requestHide} */
+    public async hide(id: number, options?: IBaseApiParams): Promise<IResponse> {
+        return this.requestHide(id, options);
+    }
+
+    /** @alias {@link ProfileFriend.requestSend} */
+    public async send(id: number, options?: IBaseApiParams): Promise<IFriendRequestResponse> {
+        return this.requestSend(id, options);
+    }
+
+    /** @alias {@link ProfileFriend.requestRemove} */
+    public async remove(id: number, options?: IBaseApiParams): Promise<IFriendRequestResponse> {
+        return this.requestRemove(id, options);
+    }
+
+    public async requests(type: "in" | "out", page: number, options?: IBaseApiParams): Promise<IPageableResponse<IProfile>> {
+        return type === "out" ? this.requestsOut(page, options) : this.requestsIn(page, options);
+    }
+
+    public async requestsLast(type: "in" | "out", query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IProfile>> {
+        return type === "out" ? this.requestsOutLast(query, options) : this.requestsInLast(query, options);
     }
 }

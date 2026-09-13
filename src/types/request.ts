@@ -1,32 +1,38 @@
 import type { IList } from "./response";
 
-export interface IBaseRequest {
+export interface IBaseApiParams {
+    token?: string,
+    signal?: AbortSignal,
+    /** Таймаут запроса в миллисекундах */
+    timeoutMs?: number,
+    /** Версия API для заголовка `API-Version` (например 2 → `v2`) */
+    apiVersion?: number,
+    /** Бросить {@link AnixApiError}, если в ответе code !== {@link DefaultResult.Ok} */
+    throwOnApiError?: boolean,
+    /** @alias {@link IBaseApiParams.throwOnApiError} */
+    throwOnAnixartError?: boolean,
+    /** Коды `code`, которые считаются успехом. По умолчанию `[0]`. */
+    successCodes?: number[],
+    /** Enum кодов результата для имени ошибки (`InvalidPassword` и т.п.). */
+    resultEnum?: Record<number, string>
+}
+
+export interface IBaseRequest extends IBaseApiParams {
     path: string,
     json?: object,
     customBaseUrl?: string,
     bearer?: string,
     urlEncoded?: object,
     queryParams?: object,
-    token?: string,
-    signal?: AbortSignal,
     method?: string,
     tokenRequired?: boolean,
     apiV2?: boolean,
-    /** Бросить {@link AnixApiError}, если в ответе code !== {@link DefaultResult.Ok} */
-    throwOnApiError?: boolean,
     image?: {
         name: string,
         stream: Buffer,
         boundary?: string,
         type: "file" | "image"
     }
-}
-
-export interface IBaseApiParams {
-    token?: string,
-    signal?: AbortSignal,
-    /** Бросить {@link AnixApiError}, если в ответе code !== {@link DefaultResult.Ok} */
-    throwOnApiError?: boolean
 }
 
 export interface IBaseRequestPageable {

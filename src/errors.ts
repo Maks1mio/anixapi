@@ -10,6 +10,7 @@ import {
     BlogCreateResult,
     BookmarkExportResult,
     ChangeEmailConfirmResult,
+    ChangeEmailResendResult,
     ChangeEmailResult,
     ChangeLoginResult,
     ChangePasswordResult,
@@ -20,6 +21,7 @@ import {
     ChannelSubscribeResult,
     ChannelUnsubscribeResult,
     ChannelUploadCoverAvatarResult,
+    CheckLoginResult,
     CollectionCreateEditResult,
     CollectionDeleteResult,
     CollectionResult,
@@ -30,18 +32,30 @@ import {
     EditorAvaliableResult,
     FavoriteCollectionAddResult,
     FavoriteCollectionDeleteResult,
+    GoogleAuthResult,
+    GoogleBindResult,
+    GoogleUnbindResult,
     IResponse,
     LoginResult,
+    OAuthAuthResult,
     PasswordChangeResult,
     RegisterResult,
     RegisterVerifyResult,
     ReleaseAddCollectionResult,
     ReleaseVideoResult,
     RemoveFriendRequestResult,
+    ReportResult,
     RestorePasswordResult,
     RestorePasswordVerifyResult,
     SendFriendRequestResult,
     SocialEditResult,
+    TelegramAuthResult,
+    TelegramBindResult,
+    TelegramUnbindResult,
+    VkBindResult,
+    VkUnbindResult,
+    YandexBindResult,
+    YandexUnbindResult,
 } from "./types";
 
 const RESULT_CODE_NAMES = new Map<number, Set<string>>();
@@ -66,6 +80,10 @@ function registerResultEnum(enumName: string, enumObject: Record<string, string 
     ["RegisterVerifyResult", RegisterVerifyResult],
     ["RestorePasswordResult", RestorePasswordResult],
     ["RestorePasswordVerifyResult", RestorePasswordVerifyResult],
+    ["CheckLoginResult", CheckLoginResult],
+    ["OAuthAuthResult", OAuthAuthResult],
+    ["TelegramAuthResult", TelegramAuthResult],
+    ["GoogleAuthResult", GoogleAuthResult],
     ["CommentAddResult", CommentAddResult],
     ["CommentDeleteResult", CommentDeleteResult],
     ["CommentEditResult", CommentEditResult],
@@ -78,9 +96,18 @@ function registerResultEnum(enumName: string, enumObject: Record<string, string 
     ["SocialEditResult", SocialEditResult],
     ["ChangeLoginResult", ChangeLoginResult],
     ["ChangeEmailResult", ChangeEmailResult],
+    ["ChangeEmailResendResult", ChangeEmailResendResult],
     ["ChangeEmailConfirmResult", ChangeEmailConfirmResult],
     ["ChangePasswordResult", ChangePasswordResult],
     ["PasswordChangeResult", PasswordChangeResult],
+    ["TelegramBindResult", TelegramBindResult],
+    ["TelegramUnbindResult", TelegramUnbindResult],
+    ["GoogleBindResult", GoogleBindResult],
+    ["GoogleUnbindResult", GoogleUnbindResult],
+    ["VkBindResult", VkBindResult],
+    ["VkUnbindResult", VkUnbindResult],
+    ["YandexBindResult", YandexBindResult],
+    ["YandexUnbindResult", YandexUnbindResult],
     ["SendFriendRequestResult", SendFriendRequestResult],
     ["RemoveFriendRequestResult", RemoveFriendRequestResult],
     ["AchivementResult", AchivementResult],
@@ -102,13 +129,14 @@ function registerResultEnum(enumName: string, enumObject: Record<string, string 
     ["ArticleSuggestionPublishResult", ArticleSuggestionPublishResult],
     ["ArticleSuggestionDeleteResult", ArticleSuggestionDeleteResult],
     ["ArticleEditPinnedResult", ArticleEditPinnedResult],
+    ["ReportResult", ReportResult],
 ].forEach(([name, value]) => registerResultEnum(name as string, value as Record<string, string | number>));
 
 /**
  * Возвращает человекочитаемое имя кода ответа API.
  *
  * @example
- * describeResultCode(3); // "LoginResult.InvalidPassword | RegisterResult.InvalidPassword | ..."
+ * describeResultCode(3); // "LoginResult.InvalidPassword | ..."
  */
 export function describeResultCode(code: number): string {
     const names = RESULT_CODE_NAMES.get(code);
@@ -118,6 +146,23 @@ export function describeResultCode(code: number): string {
     }
 
     return [...names].join(" | ");
+}
+
+/**
+ * Имя кода: сначала enum конкретного эндпоинта, затем общий справочник.
+ */
+export function getResultCodeName(
+    code: number,
+    resultEnum?: Record<number, string>,
+): string {
+    if (resultEnum && typeof resultEnum[code] === "string") {
+        return resultEnum[code];
+    }
+
+    const fromDefault = DefaultResult[code as DefaultResult];
+    if (typeof fromDefault === "string") return fromDefault;
+
+    return describeResultCode(code);
 }
 
 /**
@@ -131,11 +176,12 @@ export function isApiOk(codeOrResponse: number | IResponse): boolean {
 /**
  * Текст ошибки API или `null`, если запрос успешен.
  */
-export function getApiErrorMessage(response: IResponse, path?: string): string | null {
+export function getApiErrorMessage(response: IResponse, path?: string, resultEnum?: Record<number, string>): string | null {
     if (isApiOk(response)) return null;
 
     const pathPart = path ? ` ${path}` : "";
-    return `[AnixApi]${pathPart} code=${response.code} (${describeResultCode(response.code as number)})`;
+    const code = response.code as number;
+    return `[AnixApi]${pathPart} code=${code} (${getResultCodeName(code, resultEnum)})`;
 }
 
 export interface IAnixApiErrorOptions {
@@ -143,9 +189,26 @@ export interface IAnixApiErrorOptions {
     path?: string;
     httpStatus?: number;
     code?: number;
+    codeName?: string;
     body?: string;
     response?: IResponse;
+    data?: unknown;
     cause?: unknown;
+}
+
+/**
+ * HTTP-ошибка: сеть, пустой ответ, невалидный JSON, статус не 2xx.
+ */
+export class HttpError extends Error {
+    public constructor(
+        message: string,
+        public readonly status: number,
+        public readonly response?: unknown,
+        public readonly path?: string,
+    ) {
+        super(message);
+        this.name = "HttpError";
+    }
 }
 
 /**
@@ -155,8 +218,10 @@ export class AnixApiError extends Error {
     public readonly path?: string;
     public readonly httpStatus?: number;
     public readonly code?: number;
+    public readonly codeName?: string;
     public readonly body?: string;
     public readonly response?: IResponse;
+    public readonly data?: unknown;
 
     public constructor(options: IAnixApiErrorOptions) {
         super(options.message);
@@ -164,22 +229,62 @@ export class AnixApiError extends Error {
         this.path = options.path;
         this.httpStatus = options.httpStatus;
         this.code = options.code;
+        this.codeName = options.codeName;
         this.body = options.body;
         this.response = options.response;
+        this.data = options.data ?? options.response;
 
         if (options.cause !== undefined) {
             (this as Error & { cause?: unknown }).cause = options.cause;
         }
     }
 
-    public static fromResponse(path: string, response: IResponse): AnixApiError {
-        const message = getApiErrorMessage(response, path) ?? `[AnixApi] ${path} unknown API error`;
+    public static fromResponse(
+        path: string,
+        response: IResponse,
+        resultEnum?: Record<number, string>,
+    ): AnixartError {
+        const code = response.code as number;
+        const codeName = getResultCodeName(code, resultEnum);
+        const message = getApiErrorMessage(response, path, resultEnum)
+            ?? `[AnixApi] ${path} unknown API error`;
 
-        return new AnixApiError({
+        return new AnixartError(message, path, code, codeName, response);
+    }
+}
+
+/**
+ * Ошибка бизнес-кода Anixart (`code !== 0`). Совместима с AnixartJS.
+ *
+ * @example
+ * catch (error) {
+ *   if (error instanceof AnixartError) {
+ *     console.error(error.code, error.codeName);
+ *   }
+ * }
+ */
+export class AnixartError extends AnixApiError {
+    public constructor(
+        message: string,
+        path: string,
+        code: number,
+        codeName: string,
+        data?: unknown,
+    ) {
+        super({
             message,
             path,
-            code: response.code as number,
-            response,
+            code,
+            codeName,
+            data,
+            response: isResponse(data) ? data : undefined,
+            body: typeof data === "string" ? data : undefined,
         });
+        this.name = "AnixartError";
     }
+}
+
+function isResponse(value: unknown): value is IResponse {
+    return typeof value === "object" && value !== null && "code" in value
+        && typeof (value as { code?: unknown }).code === "number";
 }

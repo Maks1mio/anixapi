@@ -1,5 +1,5 @@
 import { Anixart } from "../../client";
-import { BlogCreateResult, ChannelBlockResult, ChannelCreateEditResult, ChannelResult, DefaultResult, EditorAvaliableResult, IArticle, IArticleMuteResponse, IBaseApiParams, IChannel, IChannelBlockInfoResponse, IChannelBlockManageRequest, IChannelCreateRequest, IChannelMediaTokenResponse, IChannelPermissionManageRequest, IChannelPermissionManageResponse, IChannelPermissionsFilterRequest, IChannelProfile, IChannelResponse, IChannelSubscribeResponse, IChannelUnsubscribeResponse, IChannelUploadCoverAvatarResponse, IChannelsFilterRequest, IEditorChannelsResponse, IPageableResponse, IResponse, ISubscriptionCountResponse } from "../../types";
+import { BlogCreateResult, ChannelBlockResult, ChannelCreateEditResult, ChannelResult, DefaultResult, EditorAvaliableResult, EmbedType, IArticle, IArticleMuteResponse, IArticleUploadFileResponse, IBaseApiParams, IChannel, IChannelBlockInfoResponse, IChannelBlockManageRequest, IChannelCreateRequest, IChannelMediaTokenResponse, IChannelPermissionManageRequest, IChannelPermissionManageResponse, IChannelPermissionsFilterRequest, IChannelProfile, IChannelResponse, IChannelSubscribeResponse, IChannelUnsubscribeResponse, IChannelUploadCoverAvatarResponse, IChannelsFilterRequest, IEditorChannelsResponse, IEmbedData, IPageableResponse, IResponse, ISubscriptionCountResponse } from "../../types";
 
 
 /**
@@ -331,5 +331,36 @@ export class Channel {
      */
     public async unsubscribe(channelId: number, options?: IBaseApiParams): Promise<IChannelUnsubscribeResponse> {
         return await this.client.call<number, IChannelUnsubscribeResponse>({ path: `/channel/unsubscribe/${channelId}`, method: 'POST', ...options });
+    }
+
+    /** @alias {@link Channel.channel} */
+    public async get(channelId: number, options?: IBaseApiParams): Promise<IChannelResponse> {
+        return this.channel(channelId, options);
+    }
+
+    /** @alias {@link Channel.editorAvailable} */
+    public async editorAvaliable(channelId: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IChannelMediaTokenResponse> {
+        return this.editorAvailable(channelId, query, options);
+    }
+
+    /** @alias {@link Channel.editorAvailableAll} */
+    public async editorAvaliableChannels(options?: IBaseApiParams): Promise<IEditorChannelsResponse> {
+        return this.editorAvailableAll(options);
+    }
+
+    /**
+     * Загрузить изображение для содержимого статьи (Bearer media-токен редактора).
+     * @alias {@link Article.uploadArticleImage}
+     */
+    public async uploadArticleImage(mediaToken: string, file: Buffer, options?: IBaseApiParams): Promise<IArticleUploadFileResponse> {
+        return this.client.endpoints.article.uploadArticleImage(mediaToken, file, options);
+    }
+
+    /**
+     * Данные для вставки внешней ссылки в статью.
+     * @alias {@link Article.generateEmbedData}
+     */
+    public async generateEmbedData(type: EmbedType, mediaToken: string, link: string, options?: IBaseApiParams): Promise<IEmbedData> {
+        return this.client.endpoints.article.generateEmbedData(type, mediaToken, link, options);
     }
 }

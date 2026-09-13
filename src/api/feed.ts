@@ -46,4 +46,9 @@ export class Feed {
     public async latestArticles(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IArticle>> {
         return await this.client.call<number, IPageableResponse<IArticle>>({ path: `/feed/latest/all/${page}`, ...options });
     }
+
+    /** @alias {@link Feed.feed} */
+    public async get(page: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IArticle>> {
+        return this.feed(page, query, options);
+    }
 }

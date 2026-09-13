@@ -1,5 +1,5 @@
 import { Anixart } from "../../client";
-import { DefaultResult, IBaseApiParams, IBaseNotification, INotificationCountResponse, IPageableResponse, IProfileArticleCommentNotification, IProfileArticleNotification, IProfileCollectionCommentNotification, IProfileEpisodeNotification, IProfileFriendNotification, IProfileRelatedReleaseNotification, IProfileReleaseCommentNotification, IResponse } from "../../types";
+import { DefaultResult, DeleteNotificationType, IBaseApiParams, IBaseNotification, INotificationCountResponse, IPageableResponse, IProfileArticleCommentNotification, IProfileArticleNotification, IProfileCollectionCommentNotification, IProfileEpisodeNotification, IProfileFriendNotification, IProfileRelatedReleaseNotification, IProfileReleaseCommentNotification, IResponse } from "../../types";
 
 
 /**
@@ -253,5 +253,14 @@ export class Notification {
      */
     public async releaseComments(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IProfileReleaseCommentNotification>> {
         return await this.client.call<number, IPageableResponse<IProfileReleaseCommentNotification>>({ path: `/notification/releaseComments/${page}`, ...options });
+    }
+
+    /**
+     * GET notification/{type}/delete/{id}
+     *
+     * Удалить уведомление указанного типа.
+     */
+    public async delete(notificationId: number, type: DeleteNotificationType, options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<number, IResponse>({ path: `/notification/${type}/delete/${notificationId}`, ...options });
     }
 }

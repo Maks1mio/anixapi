@@ -98,4 +98,9 @@ export class Release {
     public async vote(id2: number, vote: number, options?: IBaseApiParams): Promise<IResponse> {
         return await this.client.call<number, IResponse>({ path: `/release/vote/add/${id2}/${vote}`, ...options });
     }
+
+    /** @alias {@link Release.vote} */
+    public async addVote(releaseId: number, vote: number, options?: IBaseApiParams): Promise<IResponse> {
+        return this.vote(releaseId, vote, options);
+    }
 }

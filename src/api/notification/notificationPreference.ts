@@ -1,5 +1,5 @@
 import { Anixart } from "../../client";
-import { DefaultResult, IBaseApiParams, INotificationPreferenceResponse, IPageableResponse, IProfileReleaseTypeNotificationPreferencesEditRequest, IProfileStatusNotificationPreferencesEditRequest, IProfileTypeNotificationPreferencesEditRequest, IRelease, IResponse } from "../../types";
+import { DefaultResult, IBaseApiParams, INotificationPreferenceResponse, IPageableResponse, IProfileReleaseTypeNotificationPreferencesEditRequest, IProfileStatusNotificationPreferencesEditRequest, IProfileTypeNotificationPreferencesEditRequest, IRelease, IResponse, NotificationPreferenceEditType } from "../../types";
 
 
 /**
@@ -201,5 +201,39 @@ export class NotificationPreference {
      */
     public async selectedReleasesNotificationsEdit(options?: IBaseApiParams): Promise<IResponse> {
         return await this.client.call<number, IResponse>({ path: `/profile/preference/notification/selected/releases/edit`, ...options });
+    }
+
+    /**
+     * GET profile/preference/notification/{type}/edit
+     *
+     * Переключить выбранную настройку уведомлений.
+     */
+    public async edit(type: NotificationPreferenceEditType, options?: IBaseApiParams): Promise<IResponse> {
+        return await this.client.call<number, IResponse>({ path: `/profile/preference/notification/${type}/edit`, ...options });
+    }
+
+    /** @alias {@link NotificationPreference.profileReleaseNotificationPreferences} */
+    public async releases(page: number, options?: IBaseApiParams): Promise<IPageableResponse<IRelease>> {
+        return this.profileReleaseNotificationPreferences(page, options);
+    }
+
+    /** @alias {@link NotificationPreference.profileReleaseTypeNotificationPreferences} */
+    public async releaseTypes(releaseId: number, options?: IBaseApiParams): Promise<IResponse> {
+        return this.profileReleaseTypeNotificationPreferences(releaseId, options);
+    }
+
+    /** @alias {@link NotificationPreference.profileReleaseTypeNotificationPreferencesEdit} */
+    public async editReleaseTypes(body: IProfileReleaseTypeNotificationPreferencesEditRequest, options?: IBaseApiParams): Promise<IResponse> {
+        return this.profileReleaseTypeNotificationPreferencesEdit(body, options);
+    }
+
+    /** @alias {@link NotificationPreference.profileStatusNotificationPreferencesEdit} */
+    public async editStatus(body: IProfileStatusNotificationPreferencesEditRequest, options?: IBaseApiParams): Promise<IResponse> {
+        return this.profileStatusNotificationPreferencesEdit(body, options);
+    }
+
+    /** @alias {@link NotificationPreference.profileTypeNotificationPreferencesEdit} */
+    public async editType(body: IProfileTypeNotificationPreferencesEditRequest, options?: IBaseApiParams): Promise<IResponse> {
+        return this.profileTypeNotificationPreferencesEdit(body, options);
     }
 }

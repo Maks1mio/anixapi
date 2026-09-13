@@ -1,5 +1,5 @@
 import { Anixart } from "../client";
-import { DefaultResult, IBaseApiParams, IReportReason, IReportRequest, IReportResponse, IResponse } from "../types";
+import { DefaultResult, IBaseApiParams, IReportReason, IReportRequest, IReportResponse, IResponse, ReportType } from "../types";
 
 
 /**
@@ -240,5 +240,23 @@ export class Report {
      */
     public async releaseReasons(options?: IBaseApiParams): Promise<IReportReason[]> {
         return await this.client.call<number, IReportReason[]>({ path: `/report/release/reasons`, ...options });
+    }
+
+    /**
+     * GET report/{type}/reasons
+     *
+     * Универсальный список причин жалобы.
+     */
+    public async reasons(type: ReportType, options?: IBaseApiParams): Promise<IReportReason[]> {
+        return await this.client.call<number, IReportReason[]>({ path: `/report/${type}/reasons`, ...options });
+    }
+
+    /**
+     * POST report/{type}
+     *
+     * Универсальная отправка жалобы.
+     */
+    public async send(type: ReportType, body: IReportRequest, options?: IBaseApiParams): Promise<IReportResponse> {
+        return await this.client.call<number, IReportResponse>({ path: `/report/${type}`, method: 'POST', json: body, ...options });
     }
 }

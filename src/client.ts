@@ -8,7 +8,7 @@
  */
 
 import { DefaultResult, IBaseRequest, IResponse, LoginResult, IChannelResponse, IProfileResponse, IPageableResponse, IArticle, IReleaseResponse, ICollection, ILoginResponse } from "./types";
-import { AnixApiError } from "./errors";
+import { AnixApiError, HttpError } from "./errors";
 import { Endpoints } from "./endpoints";
 import { Channel } from "./classes/Channel";
 import { Article } from "./classes/Article";
@@ -21,11 +21,40 @@ const DEFAULT_BASE_URL = 'https://api-s.anixsekai.com';
 const USER_AGENT = "AnixartApp/9.0 BETA 19-26073118 (Android 9; SDK 28; x86_64; ROG ASUS AI2201_B; ru)";
 const API_ENDPOINTS_URL = 'https://raw.githubusercontent.com/AnixHelper/pages/refs/heads/main/urls.json'
 
+function mergeAbortSignals(timeoutMs?: number, signal?: AbortSignal): AbortSignal | undefined {
+    const signals: AbortSignal[] = [];
+
+    if (typeof timeoutMs === "number" && timeoutMs > 0 && typeof AbortSignal.timeout === "function") {
+        signals.push(AbortSignal.timeout(timeoutMs));
+    }
+    if (signal) signals.push(signal);
+    if (signals.length === 0) return undefined;
+    if (signals.length === 1) return signals[0];
+    if (typeof AbortSignal.any === "function") return AbortSignal.any(signals);
+
+    const controller = new AbortController();
+    const onAbort = () => {
+        const reason = signals.find((item) => item.aborted)?.reason;
+        controller.abort(reason);
+    };
+    for (const item of signals) {
+        if (item.aborted) {
+            onAbort();
+            break;
+        }
+        item.addEventListener("abort", onAbort, { once: true });
+    }
+    return controller.signal;
+}
+
 export interface IAnixartOptions {
     baseUrl?: string | URL,
     token?: string,
-    /** Бросать {@link AnixApiError} при code !== {@link DefaultResult.Ok} во всех запросах */
-    throwOnApiError?: boolean
+    userAgent?: string,
+    /** Бросать {@link AnixartError} при code !== {@link DefaultResult.Ok} во всех запросах */
+    throwOnApiError?: boolean,
+    /** @alias {@link IAnixartOptions.throwOnApiError} */
+    throwOnAnixartError?: boolean
 }
 
 export interface IAnixartEndpointUrls {
@@ -39,15 +68,29 @@ export interface IAnixartEndpointUrls {
  * Класс для работы с API Anixart
  */
 export class Anixart{
-    public readonly baseUrl: string | URL;
+    public baseUrl: string | URL;
     public token?: string | null;
+    public userAgent: string;
     public readonly throwOnApiError: boolean;
     public readonly endpoints = new Endpoints(this);
 
-    constructor(options: IAnixartOptions) {
+    constructor(options: IAnixartOptions = {}) {
         this.baseUrl = options?.baseUrl ?? DEFAULT_BASE_URL;
         this.token = options?.token ?? null;
-        this.throwOnApiError = options?.throwOnApiError ?? false;
+        this.userAgent = options?.userAgent ?? USER_AGENT;
+        this.throwOnApiError = options?.throwOnApiError ?? options?.throwOnAnixartError ?? false;
+    }
+
+    public setToken(token?: string | null): void {
+        this.token = token ?? null;
+    }
+
+    public getBaseUrl(): string {
+        return typeof this.baseUrl === "string" ? this.baseUrl : this.baseUrl.toString();
+    }
+
+    public setBaseUrl(baseUrl: string | URL): void {
+        this.baseUrl = baseUrl;
     }
 
     public static async getEndpointUrls(): Promise<IAnixartEndpointUrls> {
@@ -124,10 +167,18 @@ export class Anixart{
         let httpStatus: number | undefined;
 
         try {
+            if (request.tokenRequired && !request.token && !this.token && !request.bearer) {
+                throw new AnixApiError({
+                    message: `[AnixApi] ${request.path} Anixart token is required for this request`,
+                    path: request.path,
+                    httpStatus: 401,
+                });
+            }
+
             let url = new URL(request.path, request.customBaseUrl ?? this.baseUrl);
 
             const headers: Record<string, string> = {
-                'User-Agent': USER_AGENT,
+                'User-Agent': this.userAgent,
             }
     
             const requestInit: RequestInit = {
@@ -180,34 +231,56 @@ export class Anixart{
                 }
             }
     
-            if (request.apiV2) {
-                headers['API-Version'] = 'v2';
+            const apiVersion = request.apiVersion ?? (request.apiV2 ? 2 : undefined);
+            if (apiVersion) {
+                headers['API-Version'] = `v${apiVersion}`;
             }
     
             if (request.method) {
                 requestInit.method = request.method;
+            }
+
+            const signal = mergeAbortSignals(request.timeoutMs, request.signal);
+            if (signal) {
+                requestInit.signal = signal;
             }
     
             const response = await fetch(url.toString(), requestInit);
             httpStatus = response.status;
             data = await response.text();
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : String(error);
+            if (error instanceof AnixApiError || error instanceof HttpError) throw error;
 
-            throw new AnixApiError({
-                message: `[AnixApi] ${request.path} network error: ${message}`,
-                path: request.path,
-                cause: error,
-            });
+            const name = error instanceof Error ? error.name : "";
+            if (name === "TimeoutError" || name === "AbortError") {
+                throw error;
+            }
+
+            const message = error instanceof Error ? error.message : String(error);
+            throw new HttpError(
+                `[AnixApi] ${request.path} network error: ${message}`,
+                0,
+                undefined,
+                request.path,
+            );
         }
 
         if (data.trim() == "") {
-            throw new AnixApiError({
-                message: `[AnixApi] ${request.path} empty response (HTTP ${httpStatus ?? "?"})`,
-                path: request.path,
+            throw new HttpError(
+                `[AnixApi] ${request.path} empty response (HTTP ${httpStatus ?? "?"})`,
+                httpStatus ?? 0,
+                data,
+                request.path,
+            );
+        }
+
+        if (httpStatus != null && httpStatus >= 400) {
+            throw new HttpError(
+                `HTTP ${httpStatus}`,
                 httpStatus,
-                body: data,
-            });
+                data.length > 500 ? `${data.slice(0, 500)}...` : data,
+                request.path,
+            );
         }
 
         let parsed: T;
@@ -216,23 +289,27 @@ export class Anixart{
             parsed = JSON.parse(data) as T;
         } catch (error: unknown) {
             const preview = data.length > 200 ? `${data.slice(0, 200)}...` : data;
-            const message = error instanceof Error ? error.message : String(error);
-
-            throw new AnixApiError({
-                message: `[AnixApi] ${request.path} invalid JSON (HTTP ${httpStatus ?? "?"}): ${message}`,
-                path: request.path,
-                httpStatus,
-                body: preview,
-                cause: error,
-            });
+            throw new HttpError(
+                `[AnixApi] ${request.path} invalid JSON (HTTP ${httpStatus ?? "?"})`,
+                httpStatus ?? 0,
+                preview,
+                request.path,
+            );
         }
 
+        const apiCode = (parsed as IResponse).code;
+        const successCodes = request.successCodes ?? [DefaultResult.Ok];
+        const shouldThrow =
+            request.throwOnAnixartError
+            ?? request.throwOnApiError
+            ?? this.throwOnApiError;
+
         if (
-            (request.throwOnApiError ?? this.throwOnApiError) &&
-            typeof (parsed as IResponse).code == "number" &&
-            (parsed as IResponse).code != DefaultResult.Ok
+            shouldThrow
+            && typeof apiCode == "number"
+            && !successCodes.includes(apiCode)
         ) {
-            throw AnixApiError.fromResponse(request.path, parsed as IResponse);
+            throw AnixApiError.fromResponse(request.path, parsed as IResponse, request.resultEnum);
         }
 
         return parsed;

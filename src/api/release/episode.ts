@@ -21,6 +21,11 @@ export class Episode {
         return await this.client.call<number, IEpisodeResponse>({ path: `/episode/target/${releaseId}/${sourceId}/${position}`, ...options });
     }
 
+    /** @alias {@link Episode.episodeTarget} */
+    public async target(releaseId: number, sourceId: number, position: number, options?: IBaseApiParams): Promise<IEpisodeResponse> {
+        return this.episodeTarget(releaseId, sourceId, position, options);
+    }
+
     /**
      * GET episode/{releaseId}/{typeId}/{sourceId}
      *

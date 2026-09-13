@@ -81,6 +81,9 @@ export class Endpoints {
     /** @deprecated Используйте profilePreference */
     public get settings() { return this.profilePreference; }
 
+    /** @alias {@link Endpoints.profileFriend} */
+    public get profileFriends() { return this.profileFriend; }
+
     constructor(readonly client: Anixart) {
         this.auth = new Auth(client);
         this.config = new Config(client);

@@ -46,4 +46,9 @@ export class Config {
     public async urls(query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IConfigUrlsResponse> {
         return await this.client.call<number, IConfigUrlsResponse>({ path: `/config/urls`, queryParams: query, ...options });
     }
+
+    /** @alias {@link Config.anixplayer} */
+    public async anixPlayer(query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IAnixPlayerConfigResponse> {
+        return this.anixplayer(query, options);
+    }
 }

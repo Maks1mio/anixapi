@@ -1,5 +1,12 @@
 import { Anixart } from "../../client";
-import { ArticleCreateEditResult, ArticleResult, DefaultResult, IArticle, IArticleCreateRequest, IArticleCreateResponse, IArticleDeleteResponse, IArticleEditPinnedResponse, IArticleEventRequest, IArticleMuteResponse, IArticleResponse, IBaseApiParams, IPageableResponse, IProfile, IResponse } from "../../types";
+import { ArticleCreateEditResult, ArticleResult, DefaultResult, EmbedType, IArticle, IArticleCreateRequest, IArticleCreateResponse, IArticleDeleteResponse, IArticleEditPinnedResponse, IArticleEventRequest, IArticleMuteResponse, IArticleResponse, IArticleUploadFileResponse, IBaseApiParams, IEmbedData, IPageableResponse, IProfile, IResponse } from "../../types";
+
+const EDITOR_UPLOAD_BASE_URL = "https://editor.anixsekai.com";
+
+function generateEditorTempFileName(): string {
+    const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, "").slice(0, 15);
+    return `temp_file_${timestamp}.jpg`;
+}
 
 
 /**
@@ -149,5 +156,58 @@ export class Article {
      */
     public async votes(articleId: number, page: number, query?: Record<string, string | number | boolean | undefined>, options?: IBaseApiParams): Promise<IPageableResponse<IProfile>> {
         return await this.client.call<number, IPageableResponse<IProfile>>({ path: `/article/votes/${articleId}/${page}`, method: 'POST', queryParams: query, ...options });
+    }
+
+    /** @alias {@link Article.article} */
+    public async get(articleId: number, options?: IBaseApiParams): Promise<IArticleResponse> {
+        return this.article(articleId, options);
+    }
+
+    /** @alias {@link Article.hits} */
+    public async event(body: IArticleEventRequest, options?: IBaseApiParams): Promise<IResponse> {
+        return this.hits(body, options);
+    }
+
+    /**
+     * POST content/upload
+     *
+     * Загрузить изображение для содержимого статьи.
+     * Авторизация: Bearer `media_upload_token` редактора (`channel.editorAvailable`), не токен аккаунта.
+     *
+     * @returns {@link IArticleUploadFileResponse}
+     */
+    public async uploadArticleImage(mediaToken: string, file: Buffer, options?: IBaseApiParams): Promise<IArticleUploadFileResponse> {
+        return await this.client.call<number, IArticleUploadFileResponse>({
+            path: "/content/upload",
+            method: "POST",
+            image: {
+                type: "file",
+                name: generateEditorTempFileName(),
+                stream: file,
+            },
+            ...options,
+            bearer: mediaToken,
+            customBaseUrl: EDITOR_UPLOAD_BASE_URL,
+        });
+    }
+
+    /**
+     * GET embed/{type}
+     *
+     * Данные для вставки внешней ссылки в статью (youtube / vk / link).
+     * Авторизация: Bearer `media_upload_token` редактора.
+     *
+     * @returns {@link IEmbedData}
+     */
+    public async generateEmbedData(type: EmbedType, mediaToken: string, link: string, options?: IBaseApiParams): Promise<IEmbedData> {
+        const result = await this.client.call<number, IEmbedData>({
+            path: `/embed/${type}`,
+            queryParams: { url: link },
+            ...options,
+            bearer: mediaToken,
+            customBaseUrl: EDITOR_UPLOAD_BASE_URL,
+        });
+        result.url = link;
+        return result;
     }
 }

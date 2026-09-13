@@ -1,5 +1,5 @@
 import { Anixart } from "../client";
-import { DefaultResult, IBaseApiParams, ICheckLoginRequest, ICheckLoginResponse, IGoogleAuthResponse, ILoginRequest, ILoginResponse, IOAuthGoogleSignInRequest, IOAuthGoogleSignUpRequest, IOAuthTelegramSignInRequest, IOAuthTelegramSignUpRequest, IOAuthVkSignInRequest, IOAuthVkSignUpRequest, IOAuthYandexSignInRequest, IOAuthYandexSignUpRequest, IRegisterResponse, IResendRequest, IResponse, IRestoreEmailRequest, IRestoreResendRequest, IRestoreVerifyRequest, ISignUpRequest, ISignUpVerifyRequest, ITelegramAuthResponse, IVkAuthResponse, IYandexAuthResponse, LoginResult, RegisterResult, RegisterVerifyResult, RestorePasswordResult, RestorePasswordVerifyResult } from "../types";
+import { CheckLoginResult, DefaultResult, IBaseApiParams, ICheckLoginRequest, ICheckLoginResponse, IGoogleAuthResponse, ILoginRequest, ILoginResponse, IOAuthGoogleSignInRequest, IOAuthGoogleSignUpRequest, IOAuthTelegramSignInRequest, IOAuthTelegramSignUpRequest, IOAuthVkSignInRequest, IOAuthVkSignUpRequest, IOAuthYandexSignInRequest, IOAuthYandexSignUpRequest, IRegisterResponse, IResendRequest, IResponse, IRestoreEmailRequest, IRestoreResendRequest, IRestoreVerifyRequest, ISignUpRequest, ISignUpVerifyRequest, ITelegramAuthResponse, IVkAuthResponse, IYandexAuthResponse, LoginResult, RegisterResult, RegisterVerifyResult, RestorePasswordResult, RestorePasswordVerifyResult } from "../types";
 
 
 /**
@@ -18,7 +18,7 @@ export class Auth {
      * const result = await client.endpoints.auth.checkLogin({ login: 'user' });
      */
     public async checkLogin(data: ICheckLoginRequest, options?: IBaseApiParams): Promise<ICheckLoginResponse> {
-        return await this.client.call<number, ICheckLoginResponse>({ path: `/auth/checkLogin`, method: 'POST', urlEncoded: data, ...options });
+        return await this.client.call<number, ICheckLoginResponse>({ path: `/auth/checkLogin`, method: 'POST', urlEncoded: data, resultEnum: CheckLoginResult, ...options });
     }
 
     /**
@@ -57,7 +57,7 @@ export class Auth {
      * const result = await client.endpoints.auth.restore(...);
      */
     public async restore(data: IRestoreEmailRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
-        return await this.client.call<number, IRegisterResponse>({ path: `/auth/restore`, method: 'POST', urlEncoded: data, ...options });
+        return await this.client.call<number, IRegisterResponse>({ path: `/auth/restore`, method: 'POST', urlEncoded: data, resultEnum: RestorePasswordResult, ...options });
     }
 
     /**
@@ -83,7 +83,7 @@ export class Auth {
      * const result = await client.endpoints.auth.restoreVerify(...);
      */
     public async restoreVerify(data: IRestoreVerifyRequest, options?: IBaseApiParams): Promise<IResponse> {
-        return await this.client.call<number, IResponse>({ path: `/auth/restore/verify`, method: 'POST', urlEncoded: data, ...options });
+        return await this.client.call<number, IResponse>({ path: `/auth/restore/verify`, method: 'POST', urlEncoded: data, resultEnum: RestorePasswordVerifyResult, ...options });
     }
 
     /**
@@ -96,7 +96,7 @@ export class Auth {
      * const result = await client.endpoints.auth.signIn(...);
      */
     public async signIn(data: ILoginRequest, options?: IBaseApiParams): Promise<ILoginResponse> {
-        return await this.client.call<number, ILoginResponse>({ path: `/auth/signIn`, method: 'POST', urlEncoded: data, ...options });
+        return await this.client.call<number, ILoginResponse>({ path: `/auth/signIn`, method: 'POST', urlEncoded: data, resultEnum: LoginResult, ...options });
     }
 
     /**
@@ -161,7 +161,7 @@ export class Auth {
      * const result = await client.endpoints.auth.signUp(...);
      */
     public async signUp(data: ISignUpRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
-        return await this.client.call<number, IRegisterResponse>({ path: `/auth/signUp`, method: 'POST', urlEncoded: data, ...options });
+        return await this.client.call<number, IRegisterResponse>({ path: `/auth/signUp`, method: 'POST', urlEncoded: data, resultEnum: RegisterResult, ...options });
     }
 
     /**
@@ -226,6 +226,6 @@ export class Auth {
      * const result = await client.endpoints.auth.verify(...);
      */
     public async verify(data: ISignUpVerifyRequest, options?: IBaseApiParams): Promise<IRegisterResponse> {
-        return await this.client.call<number, IRegisterResponse>({ path: `/auth/verify`, method: 'POST', urlEncoded: data, ...options });
+        return await this.client.call<number, IRegisterResponse>({ path: `/auth/verify`, method: 'POST', urlEncoded: data, resultEnum: RegisterVerifyResult, ...options });
     }
 }

@@ -1,44 +1,24 @@
+## О проекте
+
+**AnixApi** — неофициальная имплементация REST API приложения [Anixart](https://anixart.ru). 
+
+---
+
 > [!WARNING]
 > **Дисклеймер.** Проект создан в **ознакомительных и исследовательских целях**. Автор **не поддерживает и осуждает** использование библиотеки для авторегистрации, спам-ботов, накрутки, обхода ограничений сервиса и любого злоупотребления API Anixart. Вы используете библиотеку **на свой страх и риск** и несёте ответственность за соблюдение правил Anixart и применимого законодательства.
 
-> [!CAUTION]
-> **Миграция с [theDesConnet/AnixartJS](https://github.com/theDesConnet/AnixartJS).** Плавного перехода на AnixApi **не будет**. Изменились структура `src/api`, имена эндпоинтов, типы, обработка ошибок (`AnixApiError`) и покрытие API 9.0. При переносе с версии DesConnet закладывайте время на переписывание вызовов, импортов и проверку ответов. Подробности — в [документации](docs/DOCUMENTATION.md).
+## AnixApi
 
-<h2 align="center">AnixApi</h2>
+TypeScript-обёртка над API Anixart 10.x для Node.js.  
+Эндпоинты · OAuth · редактор статей · `HttpError` / `AnixartError`
 
-<p align="center">
-  TypeScript-обёртка над API Anixart 9.x для Node.js.<br>
-  286 эндпоинтов · OAuth (VK / Google / Telegram / Yandex) · типизация · доменные классы
-</p>
+Документация · [Лицензия GPL-2.0](LICENSE)
 
-<p align="center">
-  <a href="docs/DOCUMENTATION.md">Документация</a> ·
-  <a href="LICENSE">Лицензия GPL-2.0</a>
-</p>
-
-<p align="center">
-  <code>anixapi@0.3.1</code> · актуально под <strong>Anixart 9.0 BETA 21</strong> (build <code>26080522</code>)
-</p>
+`anixapi@0.3.3` · Node.js ≥ 18 · актуально под **Anixart 10.0**
 
 ---
 
-## О проекте
 
-**AnixApi** — неофициальная имплементация REST API приложения [Anixart](https://anixart.ru). Библиотека даёт типизированный доступ к эндпоинтам, высокоуровневые методы (`getReleaseById`, `getProfileById`, …) и классы-обёртки для статей, каналов, релизов и коллекций.
-
-### Форк и оригинал
-
-Проект развивается на базе **[theDesConnet/AnixartJS](https://github.com/theDesConnet/AnixartJS)** (автор Roman U. / DesConnet, лицензия GPL-2.0).
-
-| | |
-|---|---|
-| **Оригинальный репозиторий** | https://github.com/theDesConnet/AnixartJS |
-| **Базовая архитектура API** | DesConnet |
-| **Расширения** | покрытие API 9.0 (до beta 21), реструктуризация `src/api`, типы, `AnixApiError`, OAuth-провайдеры, `typecheck` в сборке |
-
-При публикации изменений обязательно сохраняйте указание на оригинальный проект и условия GPL-2.0.
-
----
 
 ## Быстрый старт
 
@@ -53,10 +33,12 @@ const client = new Anixart();
 const code = await client.login("username", "password");
 
 if (code === DefaultResult.Ok) {
-    const release = await client.endpoints.release.info(789, true);
-    console.log(release);
+    const raw = await client.endpoints.release.release(789, { extended_mode: true });
+    console.log(raw.release);
 }
 ```
+
+Токен можно задать сразу или позже: `new Anixart({ token })`, `client.setToken(...)`.
 
 ### OAuth (VK / Google / Telegram / Yandex)
 
@@ -65,7 +47,6 @@ const { Anixart, DefaultResult, OAuthAuthResult } = require("anixapi");
 
 const client = new Anixart();
 
-// Вход: при code === 3 (NotRegistered) нужно signUpWith*
 const res = await client.endpoints.auth.signInWithYandex({
     yandexAccessToken: "...",
 });
@@ -81,38 +62,73 @@ if (res.code === DefaultResult.Ok && res.profileToken) {
 }
 ```
 
-| Провайдер | Sign-in | Поле токена |
-|-----------|---------|-------------|
-| VK | `signInWithVk` | `vkAccessToken` |
-| Google | `signInWithGoogle` | `googleIdToken` |
-| Telegram | `signInWithTelegram` | `telegramIdToken` |
-| Yandex | `signInWithYandex` | `yandexAccessToken` |
+
+| Провайдер | Sign-in              | Поле токена         |
+| --------- | -------------------- | ------------------- |
+| VK        | `signInWithVk`       | `vkAccessToken`     |
+| Google    | `signInWithGoogle`   | `googleIdToken`     |
+| Telegram  | `signInWithTelegram` | `telegramIdToken`   |
+| Yandex    | `signInWithYandex`   | `yandexAccessToken` |
+
 
 Флаги доступности: `GET config/urls` → `vk_auth_available`, `google_auth_available`, `telegram_auth_available`, `yandex_auth_available`.
 
-Подробные примеры, структура API и обработка ошибок — в **[документации](docs/DOCUMENTATION.md)**.
-
 ---
+
+
 
 ## Возможности
 
-- **286 эндпоинтов** — `client.endpoints.*` (Anixart 9.0 BETA 21)
+- Эндпоинты через `client.endpoints.*` (релизы, профиль, каналы, лента, поиск, уведомления, жалобы, …)
 - **OAuth** — VK, Google, Telegram, Yandex (sign-in / sign-up / bind / unbind)
-- **TypeScript** — типы запросов, ответов и enum-кодов (`LoginResult`, `OAuthAuthResult`, …)
+- **Редактор статей** — `uploadArticleImage`, `generateEmbedData`, `ArticleBuilder`
+- **Запросы** — `timeoutMs`, `AbortSignal`, `apiVersion`, свой `userAgent`
+- **TypeScript** — типы запросов, ответов и enum-кодов
 - **Доменные классы** — `Article`, `Channel`, `Release`, `FullProfile`, `Collection`
-- **Ошибки** — `AnixApiError`, `describeResultCode()`, опция `throwOnApiError`
+- **Ошибки** — `HttpError`, `AnixartError` (`AnixApiError`), `describeResultCode()`, `throwOnApiError`
+
+Подробности — в **[документации](docs/DOCUMENTATION.md)**.
 
 ---
+
+
+
+## Ошибки
+
+```javascript
+const { Anixart, AnixartError, HttpError } = require("anixapi");
+
+const client = new Anixart({ throwOnApiError: true });
+
+try {
+    await client.endpoints.auth.signIn({ login: "...", password: "..." });
+} catch (error) {
+    if (error instanceof AnixartError) {
+        console.error(error.code, error.codeName, error.path);
+    } else if (error instanceof HttpError) {
+        console.error(error.status, error.path);
+    }
+}
+```
+
+По умолчанию автоброс при `code !== 0` **выключен**. `TimeoutError` и `AbortError` пробрасываются как есть.
+
+---
+
+
 
 ## TODO
 
-- [x] Все эндпоинты API (286, beta 21)
+- [x] Эндпоинты API 10.0
 - [x] OAuth: VK / Google / Telegram / Yandex
+- [x] Редактор статей (upload / embed)
+- [x] `HttpError` / `AnixartError`, таймаут и отмена
 - [x] Типы и документация
-- [x] Классы для коллекций
 - [ ] Возможность использовать библиотеку в браузере полностью
 
 ---
+
+
 
 ## Проекты на базе библиотеки
 
@@ -121,11 +137,15 @@ if (res.code === DefaultResult.Ok && res.profileToken) {
 
 ---
 
+
+
 ## Лицензия
 
 Проект распространяется под **[GPL-2.0](LICENSE)** — как и [оригинальный AnixartJS](https://github.com/theDesConnet/AnixartJS).
 
 ---
+
+
 
 ## Связь
 

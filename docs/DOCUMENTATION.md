@@ -1,6 +1,6 @@
 # Документация AnixApi
 
-Полное руководство по установке, настройке и использованию библиотеки.
+Полное руководство по установке, настройке и использованию библиотеки `anixapi` (Node.js ≥ 18). Актуально под **Anixart 10.0**.
 
 ---
 
@@ -9,13 +9,16 @@
 1. [Установка](#установка)
 2. [Быстрый старт](#быстрый-старт)
 3. [Инициализация](#инициализация)
-4. [Аутентификация](#аутентификация)
-5. [Высокоуровневые методы](#высокоуровневые-методы)
-6. [Прямой доступ к эндпоинтам](#прямой-доступ-к-эндпоинтам)
-7. [Структура API](#структура-api)
-8. [Обработка ошибок](#обработка-ошибок)
-9. [Сборка из исходников](#сборка-из-исходников)
-10. [TypeScript](#typescript)
+4. [Параметры запроса](#параметры-запроса)
+5. [Аутентификация](#аутентификация)
+6. [Высокоуровневые методы](#высокоуровневые-методы)
+7. [Прямой доступ к эндпоинтам](#прямой-доступ-к-эндпоинтам)
+8. [Структура API](#структура-api)
+9. [Статьи и редактор](#статьи-и-редактор)
+10. [Обработка ошибок](#обработка-ошибок)
+11. [Парсеры видео](#парсеры-видео)
+12. [Сборка из исходников](#сборка-из-исходников)
+13. [TypeScript](#typescript)
 
 ---
 
@@ -29,10 +32,9 @@ npm install anixapi
 
 ```bash
 git clone https://github.com/Maks1mio/anixapi
-cd AnixApi
+cd anixapi
 npm install
-npm run build-win   # Windows
-npm run build       # Linux / macOS
+npm run build
 ```
 
 ---
@@ -44,18 +46,15 @@ const { Anixart, DefaultResult } = require("anixapi");
 
 const client = new Anixart();
 
-// Вход
 const code = await client.login("username", "password");
 if (code !== DefaultResult.Ok) {
     console.error("Ошибка входа, код:", code);
     process.exit(1);
 }
 
-// Релиз (RAW-ответ API)
-const raw = await client.endpoints.release.info(789, true);
-console.log(raw);
+const raw = await client.endpoints.release.release(789, { extended_mode: true });
+console.log(raw.release);
 
-// Профиль (обёртка-класс)
 const profile = await client.getProfileById(456);
 console.log(profile.login);
 ```
@@ -66,22 +65,83 @@ console.log(profile.login);
 
 ```typescript
 import { Anixart } from "anixapi";
-// const { Anixart } = require("anixapi");
 
 const client = new Anixart({
-    baseUrl: "https://api-s.anixsekai.com", // опционально
-    token: "your-token",                     // опционально
-    throwOnApiError: false,                  // опционально, см. «Обработка ошибок»
+    baseUrl: "https://api-s.anixsekai.com",
+    token: "your-token",
+    userAgent: undefined,          // свой User-Agent, иначе дефолтный AnixartApp
+    throwOnApiError: false,        // см. «Обработка ошибок»
+    // throwOnAnixartError: true,  // алиас throwOnApiError
 });
 ```
+
+`new Anixart()` без аргументов тоже допустим.
 
 | Параметр | Описание |
 |----------|----------|
 | `baseUrl` | Базовый URL API. По умолчанию `https://api-s.anixsekai.com` |
 | `token` | Токен сессии для авторизованных запросов |
-| `throwOnApiError` | Бросать `AnixApiError`, если `code !== 0` в ответе API |
+| `userAgent` | HTTP `User-Agent`. По умолчанию строка AnixartApp (можно задать свой) |
+| `throwOnApiError` | Бросать `AnixartError`, если в ответе `code !== 0` |
+| `throwOnAnixartError` | Алиас `throwOnApiError` |
 
-Токен можно передать при создании или получить через `login()` — он сохранится в экземпляре автоматически.
+После создания клиента:
+
+```typescript
+client.setToken("new-token");
+client.setToken(null);                 // сбросить
+console.log(client.getBaseUrl());
+client.setBaseUrl("https://example.com");
+client.userAgent = "MyApp/1.0";
+```
+
+Токен также выставляется автоматически после успешного `login()`.
+
+Список зеркал API:
+
+```typescript
+const urls = await Anixart.getEndpointUrls();
+```
+
+---
+
+## Параметры запроса
+
+Почти все методы эндпоинтов принимают последним аргументом `options`:
+
+```typescript
+await client.endpoints.profile.byId(456, {
+    timeoutMs: 15_000,
+    signal: controller.signal,
+    apiVersion: 2,
+    throwOnApiError: true,
+    token: "override-token",
+});
+```
+
+| Параметр | Описание |
+|----------|----------|
+| `timeoutMs` | Таймаут в миллисекундах (`AbortSignal.timeout`) |
+| `signal` | Свой `AbortSignal` для отмены |
+| `apiVersion` | Заголовок `API-Version: vN` (например `2`) |
+| `token` | Токен только для этого запроса |
+| `throwOnApiError` / `throwOnAnixartError` | Автоброс при `code !== 0` |
+| `successCodes` | Какие `code` считать успехом. По умолчанию `[0]` |
+| `resultEnum` | Enum для имени кода в `AnixartError.codeName` |
+
+Отмена и таймаут:
+
+```typescript
+const controller = new AbortController();
+
+const request = client.endpoints.profile.byId(456, {
+    signal: controller.signal,
+    timeoutMs: 15_000,
+});
+
+controller.abort();
+await request; // AbortError или TimeoutError
+```
 
 ---
 
@@ -99,10 +159,21 @@ if (code === DefaultResult.Ok) {
 }
 ```
 
+Или напрямую:
+
+```typescript
+const result = await client.endpoints.auth.signIn({ login, password });
+if (result.code === DefaultResult.Ok) {
+    client.setToken(result.profileToken.token);
+}
+```
+
 ### Готовый токен
 
 ```typescript
 const client = new Anixart({ token: "existing-token" });
+// или
+client.setToken("existing-token");
 ```
 
 ### OAuth и регистрация
@@ -110,35 +181,32 @@ const client = new Anixart({ token: "existing-token" });
 ```typescript
 import { OAuthAuthResult, GoogleAuthResult } from "anixapi";
 
-// Вход через VK / Google / Telegram / Yandex
 const vk = await client.endpoints.auth.signInWithVk({ vkAccessToken: "..." });
 const google = await client.endpoints.auth.signInWithGoogle({ googleIdToken: "..." });
 const tg = await client.endpoints.auth.signInWithTelegram({ telegramIdToken: "..." });
 const ya = await client.endpoints.auth.signInWithYandex({ yandexAccessToken: "..." });
 
-// code === OAuthAuthResult.NotRegistered (3) → нужно signUpWith*
 if (ya.code === OAuthAuthResult.NotRegistered) {
-  await client.endpoints.auth.signUpWithYandex({
-    login: "newuser",
-    email: ya.email ?? "user@example.com",
-    yandexAccessToken: "...",
-  });
+    await client.endpoints.auth.signUpWithYandex({
+        login: "newuser",
+        email: ya.email ?? "user@example.com",
+        yandexAccessToken: "...",
+    });
 }
 
-// Регистрация по email
 await client.endpoints.auth.signUp({ login, email, password });
 await client.endpoints.auth.verify({ login, email, password, code, hash });
 ```
 
-Флаги доступности провайдеров: `GET config/urls` → `vk_auth_available`, `google_auth_available`, `telegram_auth_available`, `yandex_auth_available`.
+Проверка логина: `auth.checkLogin({ login })`. Восстановление пароля: `auth.restore`, `auth.restoreResend`, `auth.restoreVerify`.
 
-Полный список методов: `client.endpoints.auth.*`
+Флаги провайдеров: `GET config/urls` → `vk_auth_available`, `google_auth_available`, `telegram_auth_available`, `yandex_auth_available`.
 
 ---
 
 ## Высокоуровневые методы
 
-Класс `Anixart` предоставляет готовые методы, возвращающие доменные объекты (`Article`, `Channel`, `Release`, `FullProfile`, `Collection`).
+Класс `Anixart` возвращает доменные объекты (`Article`, `Channel`, `Release`, `FullProfile`, `Collection`).
 
 | Метод | Описание |
 |-------|----------|
@@ -152,9 +220,9 @@ await client.endpoints.auth.verify({ login, email, password, code, hash });
 | `getFavoriteCollections(page)` | Избранные коллекции |
 | `getAllCollections(page, sort?)` | Все коллекции |
 | `login(username, password)` | Авторизация, возвращает код ответа |
+| `setToken(token?)` | Установить или сбросить токен |
+| `getBaseUrl()` / `setBaseUrl(url)` | Базовый URL |
 | `getEndpointUrls()` | Статический: зеркала API |
-
-### Примеры
 
 ```typescript
 const channel = await client.getChannelById(123);
@@ -164,7 +232,7 @@ const profile = await client.getProfileById(456);
 console.log(profile.login, profile.watchingCount);
 
 const articles = await client.getLatestFeed(1);
-articles.forEach(a => console.log(a.id));
+articles.forEach((a) => console.log(a.id));
 
 const release = await client.getReleaseById(101, true);
 if (release) console.log(release.titleRu);
@@ -174,31 +242,31 @@ if (release) console.log(release.titleRu);
 
 ## Прямой доступ к эндпоинтам
 
-Все **275** эндпоинтов доступны через `client.endpoints`:
+Все методы доступны через `client.endpoints`. Каждый возвращает типизированный ответ с полем `code`. Коды описаны в JSDoc и enum'ах (`LoginResult`, `CommentAddResult`, `ReportResult` и т.д.).
 
 ```typescript
-// Релиз
-const info = await client.endpoints.release.info(789, true);
-
-// Профиль
-const response = await client.endpoints.profile.byId(456);
-
-// Канал
+const info = await client.endpoints.release.release(789, { extended_mode: true });
+const profile = await client.endpoints.profile.byId(456);
 const channel = await client.endpoints.channel.channel(123);
-
-// Друзья
 const friends = await client.endpoints.profileFriend.friends(profileId, 0);
-
-// Эпизоды
 const episodes = await client.endpoints.episode.episodes(releaseId, typeId, sourceId);
 ```
 
-Каждый метод возвращает типизированный ответ с полем `code`. Список возможных кодов описан в JSDoc и в enum'ах (`LoginResult`, `CommentAddResult` и т.д.).
+### Алиасы групп и методов
 
-### Устаревший алиас
+Имена как в AnixartJS работают рядом с вашими:
 
 ```typescript
-client.endpoints.settings // → profilePreference (deprecated)
+client.endpoints.profileFriends     // → profileFriend
+client.endpoints.settings           // → profilePreference (deprecated)
+
+client.endpoints.article.get(id)              // → article.article
+client.endpoints.article.event(body)          // → article.hits
+client.endpoints.release.addVote(id, 5)       // → release.vote
+client.endpoints.episode.target(...)          // → episode.episodeTarget
+client.endpoints.search.profiles(page, body)  // → search.profileSearch
+client.endpoints.report.reasons(ReportType.Release)
+client.endpoints.notification.delete(id, DeleteNotificationType.Friend)
 ```
 
 ---
@@ -211,14 +279,18 @@ client.endpoints
 ├── channel, article, articleComment, articleSuggestion
 ├── collection, collectionMy, collectionFavorite, collectionComment
 ├── feed, discover, search
-├── profile, profileFriend, profileHealth, profilePreference, …
-├── release, episode, releaseComment, releaseVideo, …
+├── profile, profileBadge, profileBlockList, profileDeletion
+├── profileFriend, profileHealth, profileList, profilePreference
+├── profileReleaseVote, profileRoleList
+├── release, episode, releaseComment, releaseVideo
+├── releaseVideoAppeal, releaseVideoFavorite, releaseStreamingPlatform
+├── related, filter, history, favorite, schedule, type
 ├── notification, notificationPreference
 ├── export, import
 └── report
 ```
 
-Исходники разложены по доменам в `src/api/`:
+Исходники в `src/api/`:
 
 ```
 src/api/
@@ -233,36 +305,120 @@ src/api/
 
 ---
 
+## Статьи и редактор
+
+Картинки и embed для поста идут на `https://editor.anixsekai.com` с **Bearer `media_upload_token`**, а не с токеном аккаунта.
+
+```typescript
+import { ArticleBuilder } from "anixapi";
+import { readFile } from "node:fs/promises";
+
+const channel = await client.getChannelById(2585);
+const mediaToken = await channel.getMediaToken(false, false);
+
+const image = await client.endpoints.article.uploadArticleImage(
+    mediaToken,
+    await readFile("./cover.jpg"),
+);
+
+const embed = await client.endpoints.article.generateEmbedData(
+    "link",          // "youtube" | "vk" | "link"
+    mediaToken,
+    "https://anixart.tv/release/1",
+);
+
+const payload = new ArticleBuilder()
+    .setSignedState(true)
+    .addBlock({ type: "header", text: "Заголовок" })
+    .addBlock({ type: "paragraph", text: "Текст" })
+    .addBlock({ type: "embed", data: embed })
+    .addBlock({ type: "media", items: [image.file] })
+    .build();
+
+await client.endpoints.article.create(channel.id, payload);
+```
+
+Те же методы есть на `client.endpoints.channel.uploadArticleImage` / `generateEmbedData`. Старый `returnBuildAricle()` у билдера сохранён как алиас `build()`.
+
+---
+
 ## Обработка ошибок
 
-### Коды ответа API
+Два класса:
+
+| Класс | Когда |
+|-------|--------|
+| `HttpError` | Сеть, пустой ответ, невалидный JSON, HTTP-статус ≥ 400 |
+| `AnixartError` (наследник `AnixApiError`) | Бизнес-код API `code !== 0` при включённом автобросе |
+
+`TimeoutError` и `AbortError` пробрасываются как есть.
+
+Поля `AnixartError`: `code`, `codeName`, `path`, `data`.  
+Поля `HttpError`: `status`, `response`, `path`.
+
+### Коды ответа
 
 Большинство запросов возвращают `{ code: number, ... }`. Успех — `DefaultResult.Ok` (0).
 
 ```typescript
-import { DefaultResult, isApiOk, getApiErrorMessage, describeResultCode } from "anixapi";
+import {
+    DefaultResult,
+    AnixartError,
+    HttpError,
+    isApiOk,
+    getApiErrorMessage,
+    describeResultCode,
+    getResultCodeName,
+} from "anixapi";
 
-const result = await client.endpoints.auth.signIn({ login, password });
+try {
+    const result = await client.endpoints.auth.signIn({ login, password });
 
-if (!isApiOk(result)) {
-    console.error(getApiErrorMessage(result, "/auth/signIn"));
-    // code=3 (LoginResult.InvalidPassword | ...)
-    console.log(describeResultCode(result.code));
+    if (!isApiOk(result)) {
+        console.error(getApiErrorMessage(result, "/auth/signIn"));
+        console.log(describeResultCode(result.code));
+    }
+} catch (error) {
+    if (error instanceof AnixartError) {
+        console.error(`Anixart: ${error.code} (${error.codeName})`, error.path);
+        return;
+    }
+    if (error instanceof HttpError) {
+        console.error(`HTTP ${error.status}`, error.path);
+        return;
+    }
+    if (error instanceof Error && error.name === "AbortError") {
+        console.error("Запрос отменён.");
+        return;
+    }
+    if (error instanceof Error && error.name === "TimeoutError") {
+        console.error("Истёк таймаут запроса.");
+        return;
+    }
+    throw error;
 }
 ```
 
-### Сетевые и парсинг-ошибки
+### Автоброс при `code !== 0`
 
-При сбое сети, пустом ответе или невалидном JSON бросается `AnixApiError` с полями `path`, `httpStatus`, `body`.
-
-### Автоброс при code !== 0
+По умолчанию **выключен**. Включается так:
 
 ```typescript
 const client = new Anixart({ throwOnApiError: true });
+// или throwOnAnixartError: true
 
-// или на один запрос
 await client.endpoints.article.delete(123, { throwOnApiError: true });
 ```
+
+Тогда при `code !== 0` бросается `AnixartError`. Для заявок в друзья коды `0, 2, 3` считаются успехом (`successCodes`).
+
+---
+
+## Парсеры видео
+
+Из пакета экспортируются парсеры прямых ссылок:
+
+`KodikParser`, `AniLibriaParser`, `SibnetParser`, `RutubeParser`, `VKVideoParser`, `OKParser`.
 
 ---
 
@@ -270,34 +426,39 @@ await client.endpoints.article.delete(123, { throwOnApiError: true });
 
 ```bash
 npm run typecheck   # проверка типов без сборки
-npm run build-win   # Windows: typecheck + tsc → dist/
-npm run build       # Unix: typecheck + tsc → dist/
+npm run build       # typecheck + tsc → dist/
 ```
 
-Перед сборкой автоматически запускается `tsc --noEmit` — при ошибках типов билд прерывается.
+Перед сборкой запускается `tsc --noEmit` — при ошибках типов билд прерывается.
 
 ---
 
 ## TypeScript
 
-Библиотека поставляется с декларациями (`dist/index.d.ts`). Основные экспорты:
+Декларации: `dist/index.d.ts`.
 
 ```typescript
 import {
     Anixart,
     DefaultResult,
     LoginResult,
+    ReportType,
+    DeleteNotificationType,
+    EmbedType,
     AnixApiError,
+    AnixartError,
+    HttpError,
     isApiOk,
     describeResultCode,
-    // типы ответов и сущностей
+    getResultCodeName,
+    ArticleBuilder,
     IProfile,
     IRelease,
     IArticle,
 } from "anixapi";
 ```
 
-Доменные классы-обёртки (`Article`, `Channel`, `Release`, `FullProfile`, `Collection`) создаются через методы `Anixart`, а не экспортируются напрямую из корня пакета.
+Доменные классы-обёртки (`Article`, `Channel`, `Release`, `FullProfile`, `Collection`) создаются через методы `Anixart`, а не экспортируются из корня пакета.
 
 ---
 
